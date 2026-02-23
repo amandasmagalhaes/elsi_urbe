@@ -1,0 +1,19 @@
+---
+title: "Análises ELSI-Urbe"
+format: html
+---
+
+# Introduction
+
+This is my first Quarto document created in Positron.
+
+## Libraries
+```{r}
+library(tidyverse)
+```
+
+```{r}
+ggplot(mtcars, aes(x = wt, y = mpg)) +
+  geom_point() +
+  theme_classic()
+```
