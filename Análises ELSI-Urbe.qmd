@@ -1,0 +1,50 @@
+---
+title: "Análises ELSI-Urbe"
+author: Amanda Magalhães e Amanda Andrade
+date: today
+lang: pt-BR
+format:
+  html:
+    theme: cosmo
+    toc: true
+    toc-location: left
+    number-sections: true
+    code-fold: true
+---
+
+# Introdução
+Este documento detalha as análises descritivas do ELSI-Urbe utilizando dados da segunda onda ELSI-Brasil (2019-21) e da Auditoria Virtual.
+
+```{r}
+#| warning: false
+#| message: false
+
+#| code-summary: "Pacotes"
+library(pacman)
+p_load(tidyverse, haven, here, gtsummary)
+```
+
+```{r}
+#| code-summary: "Banco de dados"
+df <- read_dta(here("ELSI-Brasil e Auditoria Virtual - 2 onda.dta"))
+```
+
+# Descritiva
+Análises considerando somente a área urbana (zona == 1) e comparando as características de moradores em cidades incluídas ou não na auditoria virtual.
+
+```{r}
+#| code-summary: "Sexo"
+df %>%
+  filter(zona == 1) %>%
+  mutate(
+    sexo = factor(sexo, levels = c(0, 1), labels = c("Feminino", "Masculino")),
+    cidade_auditoria = factor(cidade_auditoria, levels = c(0, 1), labels = c("Não", "Sim"))
+  ) %>%
+  tbl_cross(
+    row = sexo,
+    col = cidade_auditoria,
+    percent = "column",
+    label = list(sexo ~ "Sexo", cidade_auditoria ~ "Auditoria virtual")
+  ) %>%
+  add_p()
+```
