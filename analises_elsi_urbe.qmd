@@ -17,7 +17,7 @@ execute:
 
 
 # Introdução
-Este documento detalha as análises descritivas do ELSI-Urbe utilizando dados da segunda onda ELSI-Brasil (2019-21) e da auditoria virtual.
+Este documento detalha as análises do ELSI-Urbe utilizando dados da segunda onda do ELSI-Brasil (2019-21) e da auditoria virtual.
 
 
 ```{r}
@@ -26,14 +26,26 @@ Este documento detalha as análises descritivas do ELSI-Urbe utilizando dados da
 #| message: false
 
 library(pacman)
-p_load(tidyverse, haven, here, gtsummary)
+p_load(tidyverse, haven, here, gtsummary, kableExtra)
 ```
 
 
 ```{r}
-#| code-summary: "Padrão decimal e de milhar para português"
+#| code-summary: Separadores
+#| warning: false
+#| message: false
 
-theme_gtsummary_language("pt", decimal.mark = ",", big.mark = ".")
+theme_gtsummary_language("en", decimal.mark = ",", big.mark = ".")
+```
+
+
+```{r}
+#| code-summary: Knitr
+
+knitr::opts_chunk$set(
+  fig.align = "center",
+  out.width = "100%"
+)
 ```
 
 
@@ -104,7 +116,7 @@ df %>%
 
 
 ```{r}
-#| code-summary: "Shapiro–Wilk test"
+#| code-summary: "Teste de normalidade (Shapiro-Wilk)"
 
 df %>%
   filter(zona == 1) %>%
@@ -120,9 +132,15 @@ df %>%
   ) %>%
   select(-p_val_raw) %>%
   knitr::kable(
-    caption = "Teste de Normalidade (Shapiro-Wilk)",
-    col.names = c("Auditoria virtual", "p-valor", "Resultado")
-  )
+    col.names = c("Auditoria virtual", "p-valor", "Resultado"),
+    align = "c"
+  ) %>%
+  kable_styling(
+    full_width = FALSE, 
+    position = "center", 
+    font_size = 24
+  ) %>%
+  row_spec(0, bold = TRUE, align = "c")
 ```
 
 
@@ -225,11 +243,12 @@ df %>%
 
 
 ```{r}
-#| code-summary: "Shapiro–Wilk test"
+#| code-summary: "Teste de normalidade (Shapiro-Wilk)"
 
 df %>%
   filter(zona == 1) %>%
   mutate(
+    rendadompc = as.numeric(rendadompc),
     cidade_auditoria = factor(cidade_auditoria, levels = c(0, 1), labels = c("Não", "Sim"))
   ) %>%
   group_by(cidade_auditoria) %>%
@@ -240,9 +259,15 @@ df %>%
   ) %>%
   select(-p_val_raw) %>%
   knitr::kable(
-    caption = "Teste de Normalidade (Shapiro-Wilk) - Renda per capita",
-    col.names = c("Auditoria virtual", "p-valor", "Resultado")
-  )
+    col.names = c("Auditoria virtual", "p-valor", "Resultado"),
+    align = "c"
+  ) %>%
+  kable_styling(
+    full_width = FALSE, 
+    position = "center", 
+    font_size = 24
+  ) %>%
+  row_spec(0, bold = TRUE, align = "c")
 ```
 
 
