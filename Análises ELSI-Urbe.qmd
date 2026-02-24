@@ -12,39 +12,191 @@ format:
     code-fold: true
 ---
 
+
+
 # Introdução
-Este documento detalha as análises descritivas do ELSI-Urbe utilizando dados da segunda onda ELSI-Brasil (2019-21) e da Auditoria Virtual.
+Este documento detalha as análises descritivas do ELSI-Urbe utilizando dados da segunda onda ELSI-Brasil (2019-21) e da auditoria virtual.
+
 
 ```{r}
+#| code-summary: "Pacotes"
 #| warning: false
 #| message: false
 
-#| code-summary: "Pacotes"
 library(pacman)
 p_load(tidyverse, haven, here, gtsummary)
 ```
 
+
 ```{r}
 #| code-summary: "Banco de dados"
+
 df <- read_dta(here("ELSI-Brasil e Auditoria Virtual - 2 onda.dta"))
 ```
 
-# Descritiva
-Análises considerando somente a área urbana (zona == 1) e comparando as características de moradores em cidades incluídas ou não na auditoria virtual.
+
+
+# Descritivas
+Análises considerando somente a área urbana e comparando as características de moradores em cidades incluídas ou não na auditoria virtual.
+
 
 ```{r}
-#| code-summary: "Sexo"
+#| code-summary: "Sexo: Tabela"
+
 df %>%
   filter(zona == 1) %>%
   mutate(
     sexo = factor(sexo, levels = c(0, 1), labels = c("Feminino", "Masculino")),
     cidade_auditoria = factor(cidade_auditoria, levels = c(0, 1), labels = c("Não", "Sim"))
   ) %>%
-  tbl_cross(
-    row = sexo,
-    col = cidade_auditoria,
-    percent = "column",
-    label = list(sexo ~ "Sexo", cidade_auditoria ~ "Auditoria virtual")
+  select(sexo, cidade_auditoria) %>%
+  tbl_summary(
+    by = cidade_auditoria,
+    label = list(sexo ~ "Sexo")
   ) %>%
-  add_p()
+  add_p() %>%
+  modify_header(label = "**Variável**")
+```
+
+
+```{r}
+#| code-summary: "Idade: Histograma"
+
+df %>%
+  filter(zona == 1) %>%
+  mutate(
+    cidade_auditoria = factor(cidade_auditoria, levels = c(0, 1), labels = c("Não", "Sim"))
+  ) %>%
+  ggplot(aes(x = idade, fill = cidade_auditoria)) +
+  geom_density(alpha = 0.5) +
+  facet_wrap(~cidade_auditoria) +
+  theme_minimal() +
+  labs(
+    title = "Distribuição da idade \n",
+    x = "\n Idade (anos)",
+    y = "Densidade \n",
+    fill = "Auditoria virtual"
+  ) +
+  theme(strip.text = element_blank())
+```
+
+
+```{r}
+#| code-summary: "Idade: Shapiro–Wilk test"
+
+df %>%
+  filter(zona == 1) %>%
+  group_by(cidade_auditoria) %>%
+  summarise(
+    p_valor = shapiro.test(idade)$p.value,
+    resultado = if_else(p_valor > 0.05, "Distribuição normal", "Distribuição não normal")
+  )
+```
+
+
+```{r}
+#| code-summary: "Idade: Tabela"
+df %>%
+  filter(zona == 1) %>%
+  mutate(
+    idade = as.numeric(idade), 
+    cidade_auditoria = factor(cidade_auditoria, levels = c(0, 1), labels = c("Não", "Sim"))
+  ) %>%
+  select(idade, cidade_auditoria) %>%
+  tbl_summary(
+    by = cidade_auditoria,
+    label = list(idade ~ "Idade (anos)"),
+    statistic = list(idade ~ "{median} ({p25}, {p75})"),
+    digits = list(idade ~ 1)
+  ) %>%
+  add_p(test = list(idade ~ "wilcox.test")) %>%
+  modify_header(label = "**Variável**")
+```
+
+
+```{r}
+#| code-summary: "Escolaridade: Tabela"
+
+n_missing <- df %>% 
+  filter(zona == 1) %>% 
+  summarise(n = sum(is.na(e22) | e22 == 99)) %>% 
+  pull(n)
+
+df %>%
+  filter(zona == 1) %>%
+  mutate(
+    escolaridade = case_when(
+      e22 >= 1 & e22 <= 9   ~ "Baixa",
+      e22 >= 10 & e22 <= 14 ~ "Média",
+      e22 >= 15 & e22 <= 18 ~ "Alta",
+      TRUE ~ NA_character_
+    ),
+    escolaridade = factor(escolaridade, levels = c("Baixa", "Média", "Alta")),
+    cidade_auditoria = factor(cidade_auditoria, levels = c(0, 1), labels = c("Não", "Sim"))
+  ) %>%
+  select(escolaridade, cidade_auditoria) %>%
+  tbl_summary(
+    by = cidade_auditoria,
+    label = list(escolaridade ~ "Escolaridade"),
+    missing = "no"
+  ) %>%
+  add_p() %>%
+  modify_header(label = "**Variável**") %>%
+  modify_footnote(
+    label ~ paste0("Dados ausentes: ", n_missing)
+  )
+```
+
+
+```{r}
+#| code-summary: "Renda: Histograma"
+
+df %>%
+  filter(zona == 1) %>%
+  mutate(
+    cidade_auditoria = factor(cidade_auditoria, levels = c(0, 1), labels = c("Não", "Sim"))
+  ) %>%
+  ggplot(aes(x = rendadompc, fill = cidade_auditoria)) +
+  geom_density(alpha = 0.5) +
+  facet_wrap(~cidade_auditoria) +
+  theme_minimal() +
+  labs(
+    title = "Distribuição da renda mensal domiciliar per capita \n",
+    x = "\n Renda (R$)",
+    y = "Densidade \n",
+    fill = "Auditoria virtual"
+  ) +
+  theme(strip.text = element_blank())
+```
+
+
+```{r}
+#| code-summary: "Renda: Shapiro–Wilk test"
+
+df %>%
+  filter(zona == 1) %>%
+  group_by(cidade_auditoria) %>%
+  summarise(
+    p_valor = shapiro.test(rendadompc)$p.value,
+    resultado = if_else(p_valor > 0.05, "Distribuição normal", "Distribuição não normal")
+  )
+```
+
+
+```{r}
+df %>%
+  filter(zona == 1) %>%
+  mutate(
+    rendadompc = as.numeric(rendadompc), 
+    cidade_auditoria = factor(cidade_auditoria, levels = c(0, 1), labels = c("Não", "Sim"))
+  ) %>%
+  select(rendadompc, cidade_auditoria) %>%
+  tbl_summary(
+    by = cidade_auditoria,
+    label = list(rendadompc ~ "Renda mensal domiciliar per capita (R$)"),
+    statistic = list(rendadompc ~ "{median} ({p25}, {p75})"),
+    digits = list(rendadompc ~ 2)
+  ) %>%
+  add_p(test = list(rendadompc ~ "wilcox.test")) %>%
+  modify_header(label = "**Variável**")
 ```
