@@ -9,8 +9,6 @@ validate = true
 files = [
   '/analises_elsi_urbe.qmd',
   '/.posit/publish/analises_elsi_urbe-J9NF.toml',
-  '/.posit/publish/deployments/deployment-PV3F.toml',
-  '/analises_elsi_urbe.html',
-  '/elsi_brasil_auditoria_virtual.dta'
+  '/.posit/publish/deployments/deployment-PV3F.toml'
 ]
 title = 'analises_elsi_urbe'
