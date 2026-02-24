@@ -10,7 +10,6 @@ format:
     toc-location: left
     number-sections: true
     code-fold: true
-
 execute:
   freeze: auto
 ---
@@ -60,8 +59,12 @@ df %>%
     by = cidade_auditoria,
     label = list(sexo ~ "Sexo")
   ) %>%
+  add_overall(last = TRUE) %>%
   add_p() %>%
-  modify_header(label = "**Variável**")
+  modify_header(
+    label = "**Variável**",
+    stat_0 = "**Total**"
+  )
 ```
 
 
