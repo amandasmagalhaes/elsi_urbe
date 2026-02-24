@@ -31,6 +31,13 @@ p_load(tidyverse, haven, here, gtsummary)
 
 
 ```{r}
+#| code-summary: "Padrão decimal e de milhar para português"
+
+theme_gtsummary_language("pt", decimal.mark = ",", big.mark = ".")
+```
+
+
+```{r}
 #| code-summary: "Banco de dados"
 
 df <- read_dta(here("elsi_brasil_auditoria_virtual.dta"))
@@ -63,7 +70,10 @@ df %>%
   add_p() %>%
   modify_header(
     label = "**Variável**",
-    stat_0 = "**Total**"
+    stat_0 = "**Total**<br>N = {N}"
+  ) %>%
+  modify_spanning_header(
+    all_stat_cols(stat_0 = FALSE) ~ "**Auditoria virtual**"
   )
 ```
 
@@ -98,10 +108,20 @@ df %>%
 
 df %>%
   filter(zona == 1) %>%
+  mutate(
+    idade = as.numeric(idade),
+    cidade_auditoria = factor(cidade_auditoria, levels = c(0, 1), labels = c("Não", "Sim"))
+  ) %>%
   group_by(cidade_auditoria) %>%
   summarise(
-    p_valor = shapiro.test(idade)$p.value,
-    resultado = if_else(p_valor > 0.05, "Distribuição normal", "Distribuição não normal")
+    p_val_raw = shapiro.test(idade)$p.value,
+    `p-valor` = formatC(p_val_raw, format = "e", digits = 2), 
+    Resultado = if_else(p_val_raw > 0.05, "Distribuição normal", "Distribuição não normal")
+  ) %>%
+  select(-p_val_raw) %>%
+  knitr::kable(
+    caption = "Teste de Normalidade (Shapiro-Wilk)",
+    col.names = c("Auditoria virtual", "p-valor", "Resultado")
   )
 ```
 
@@ -121,8 +141,15 @@ df %>%
     statistic = list(idade ~ "{median} ({p25}, {p75})"),
     digits = list(idade ~ 1)
   ) %>%
+  add_overall(last = TRUE) %>%
   add_p(test = list(idade ~ "wilcox.test")) %>%
-  modify_header(label = "**Variável**")
+  modify_header(
+    label = "**Variável**",
+    stat_0 = "**Total**<br>N = {N}"
+  ) %>%
+  modify_spanning_header(
+    all_stat_cols(stat_0 = FALSE) ~ "**Auditoria virtual**"
+  )
 ```
 
 
@@ -132,9 +159,9 @@ df %>%
 ```{r}
 #| code-summary: "Tabela"
 
-n_missing <- df %>% 
+n_miss_escolaridade <- df %>% 
   filter(zona == 1) %>% 
-  summarise(n = sum(is.na(e22) | e22 == 99)) %>% 
+  summarise(n = sum(is.na(e22) | e22 == 99 | e22 < 1 | e22 > 18)) %>% 
   pull(n)
 
 df %>%
@@ -155,10 +182,17 @@ df %>%
     label = list(escolaridade ~ "Escolaridade"),
     missing = "no"
   ) %>%
+  add_overall(last = TRUE) %>% 
   add_p() %>%
-  modify_header(label = "**Variável**") %>%
+  modify_header(
+    label = "**Variável**",
+    stat_0 = "**Total**<br>N = {N}"
+  ) %>%
+  modify_spanning_header(
+    all_stat_cols(stat_0 = FALSE) ~ "**Auditoria virtual**"
+  ) %>%
   modify_footnote(
-    label ~ paste0("Dados ausentes: ", n_missing)
+    label ~ paste0("Dados ausentes: ", n_miss_escolaridade)
   )
 ```
 
@@ -195,10 +229,19 @@ df %>%
 
 df %>%
   filter(zona == 1) %>%
+  mutate(
+    cidade_auditoria = factor(cidade_auditoria, levels = c(0, 1), labels = c("Não", "Sim"))
+  ) %>%
   group_by(cidade_auditoria) %>%
   summarise(
-    p_valor = shapiro.test(rendadompc)$p.value,
-    resultado = if_else(p_valor > 0.05, "Distribuição normal", "Distribuição não normal")
+    p_val_raw = shapiro.test(rendadompc)$p.value,
+    `p-valor` = formatC(p_val_raw, format = "e", digits = 2), 
+    Resultado = if_else(p_val_raw > 0.05, "Distribuição normal", "Distribuição não normal")
+  ) %>%
+  select(-p_val_raw) %>%
+  knitr::kable(
+    caption = "Teste de Normalidade (Shapiro-Wilk) - Renda per capita",
+    col.names = c("Auditoria virtual", "p-valor", "Resultado")
   )
 ```
 
@@ -206,7 +249,7 @@ df %>%
 ```{r}
 #| code-summary: "Tabela"
 
-n_missing_renda <- df %>% 
+n_miss_renda <- df %>% 
   filter(zona == 1) %>% 
   summarise(n = sum(is.na(rendadompc))) %>% 
   pull(n)
@@ -222,12 +265,20 @@ df %>%
     by = cidade_auditoria,
     label = list(rendadompc ~ "Renda mensal domiciliar per capita (R$)"),
     statistic = list(rendadompc ~ "{median} ({p25}, {p75})"),
+    digits = list(rendadompc ~ 2),
     missing = "no"
   ) %>%
+  add_overall(last = TRUE) %>% 
   add_p(test = list(rendadompc ~ "wilcox.test")) %>%
-  modify_header(label = "**Variável**") %>%
+  modify_header(
+    label = "**Variável**",
+    stat_0 = "**Total**<br>N = {N}"
+  ) %>%
+  modify_spanning_header(
+    all_stat_cols(stat_0 = FALSE) ~ "**Auditoria virtual**"
+  ) %>%
   modify_footnote(
-    label ~ paste0("Dados ausentes: ", n_missing_renda)
+    label ~ paste0("Dados ausentes: ", n_miss_renda)
   )
 ```
 
@@ -253,6 +304,13 @@ df %>%
     by = cidade_auditoria,
     label = list(regiao ~ "Região")
   ) %>%
+  add_overall(last = TRUE) %>% 
   add_p() %>%
-  modify_header(label = "**Variável**")
+  modify_header(
+    label = "**Variável**",
+    stat_0 = "**Total**<br>N = {N}"
+  ) %>%
+  modify_spanning_header(
+    all_stat_cols(stat_0 = FALSE) ~ "**Auditoria virtual**"
+  )
 ```
