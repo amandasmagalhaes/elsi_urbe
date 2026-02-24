@@ -31,7 +31,7 @@ p_load(tidyverse, haven, here, gtsummary)
 ```{r}
 #| code-summary: "Banco de dados"
 
-df <- read_dta(here("ELSI-Brasil e Auditoria Virtual - 2 onda.dta"))
+df <- read_dta(here("elsi_brasil_auditoria_virtual.dta"))
 ```
 
 
@@ -251,3 +251,10 @@ df %>%
   modify_header(label = "**Variável**")
 ```
 
+
+# Manifest
+
+
+```{r}
+rsconnect::writeManifest(appPrimaryDoc = "analises_elsi_urbe.qmd")
+```
