@@ -253,11 +253,3 @@ df %>%
   add_p() %>%
   modify_header(label = "**Variável**")
 ```
-
-
-# Manifest
-
-
-```{r}
-rsconnect::writeManifest(appPrimaryDoc = "analises_elsi_urbe.qmd")
-```
