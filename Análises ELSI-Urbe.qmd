@@ -40,8 +40,11 @@ df <- read_dta(here("ELSI-Brasil e Auditoria Virtual - 2 onda.dta"))
 Análises considerando somente a área urbana e comparando as características de moradores em cidades incluídas ou não na auditoria virtual.
 
 
+## Sexo
+
+
 ```{r}
-#| code-summary: "Sexo: Tabela"
+#| code-summary: "Tabela"
 
 df %>%
   filter(zona == 1) %>%
@@ -59,8 +62,11 @@ df %>%
 ```
 
 
+## Idade
+
+
 ```{r}
-#| code-summary: "Idade: Histograma"
+#| code-summary: "Histograma"
 
 df %>%
   filter(zona == 1) %>%
@@ -82,7 +88,7 @@ df %>%
 
 
 ```{r}
-#| code-summary: "Idade: Shapiro–Wilk test"
+#| code-summary: "Shapiro–Wilk test"
 
 df %>%
   filter(zona == 1) %>%
@@ -95,7 +101,7 @@ df %>%
 
 
 ```{r}
-#| code-summary: "Idade: Tabela"
+#| code-summary: "Tabela"
 df %>%
   filter(zona == 1) %>%
   mutate(
@@ -114,8 +120,11 @@ df %>%
 ```
 
 
+## Escolaridade
+
+
 ```{r}
-#| code-summary: "Escolaridade: Tabela"
+#| code-summary: "Tabela"
 
 n_missing <- df %>% 
   filter(zona == 1) %>% 
@@ -148,8 +157,13 @@ df %>%
 ```
 
 
+## Renda mensal domiciliar per capita
+
+
 ```{r}
-#| code-summary: "Renda: Histograma"
+#| code-summary: "Histograma"
+#| warning: false
+#| message: false
 
 df %>%
   filter(zona == 1) %>%
@@ -171,7 +185,7 @@ df %>%
 
 
 ```{r}
-#| code-summary: "Renda: Shapiro–Wilk test"
+#| code-summary: "Shapiro–Wilk test"
 
 df %>%
   filter(zona == 1) %>%
@@ -184,6 +198,13 @@ df %>%
 
 
 ```{r}
+#| code-summary: "Tabela"
+
+n_missing_renda <- df %>% 
+  filter(zona == 1) %>% 
+  summarise(n = sum(is.na(rendadompc))) %>% 
+  pull(n)
+
 df %>%
   filter(zona == 1) %>%
   mutate(
@@ -195,8 +216,38 @@ df %>%
     by = cidade_auditoria,
     label = list(rendadompc ~ "Renda mensal domiciliar per capita (R$)"),
     statistic = list(rendadompc ~ "{median} ({p25}, {p75})"),
-    digits = list(rendadompc ~ 2)
+    missing = "no"
   ) %>%
   add_p(test = list(rendadompc ~ "wilcox.test")) %>%
+  modify_header(label = "**Variável**") %>%
+  modify_footnote(
+    label ~ paste0("Dados ausentes: ", n_missing_renda)
+  )
+```
+
+
+## Região
+
+
+```{r}
+#| code-summary: "Tabela"
+
+df %>%
+  filter(zona == 1) %>%
+  mutate(
+    regiao = factor(regiao, 
+                    levels = c(1, 2, 3, 4, 5), 
+                    labels = c("Norte", "Nordeste", "Sudeste", "Sul", "Centro-Oeste")),
+    cidade_auditoria = factor(cidade_auditoria, 
+                              levels = c(0, 1), 
+                              labels = c("Não", "Sim"))
+  ) %>%
+  select(regiao, cidade_auditoria) %>%
+  tbl_summary(
+    by = cidade_auditoria,
+    label = list(regiao ~ "Região")
+  ) %>%
+  add_p() %>%
   modify_header(label = "**Variável**")
 ```
+
