@@ -11,16 +11,21 @@ id = '019c9119-f6da-9c55-bbd0-810df47f1e7f'
 dashboard_url = 'https://connect.posit.cloud/amandasmagalhaes/content/019c9119-f6da-9c55-bbd0-810df47f1e7f'
 direct_url = 'https://019c9119-f6da-9c55-bbd0-810df47f1e7f.share.connect.posit.cloud'
 logs_url = 'https://connect.posit.cloud/amandasmagalhaes/content/019c9119-f6da-9c55-bbd0-810df47f1e7f/history'
-deployed_at = '2026-02-24T16:24:34-05:00'
-bundle_id = '019c918a-1b41-4770-6396-4c4b20f538d0'
+deployed_at = '2026-02-25T10:38:55-05:00'
+bundle_id = '019c9574-0927-f182-c17e-15880d579123'
 files = [
   '.posit/publish/analises_elsi_urbe-PPVV.toml',
   '.posit/publish/deployments/deployment-AJM6.toml',
   'analises_elsi_urbe.html',
+  'analises_elsi_urbe_files/figure-html/Histograma idade-1.png',
+  'analises_elsi_urbe_files/figure-html/Histograma renda-1.png',
   'analises_elsi_urbe_files/figure-html/unnamed-chunk-10-1.png',
+  'analises_elsi_urbe_files/figure-html/unnamed-chunk-13-1.png',
+  'analises_elsi_urbe_files/figure-html/unnamed-chunk-14-1.png',
   'analises_elsi_urbe_files/figure-html/unnamed-chunk-4-1.png',
   'analises_elsi_urbe_files/figure-html/unnamed-chunk-5-1.png',
   'analises_elsi_urbe_files/figure-html/unnamed-chunk-6-1.png',
+  'analises_elsi_urbe_files/figure-html/unnamed-chunk-7-1.png',
   'analises_elsi_urbe_files/figure-html/unnamed-chunk-8-1.png',
   'analises_elsi_urbe_files/figure-html/unnamed-chunk-9-1.png',
   'analises_elsi_urbe_files/libs/bootstrap/bootstrap-4d7f0bce1131f3e5f9547cd857cfbfc8.min.css',

@@ -128,7 +128,7 @@ df %>%
   modify_spanning_header(
     all_stat_cols(stat_0 = FALSE) ~ "**Auditoria virtual**"
   ) %>%
-  modify_footnote(all_stat_cols() ~ "%")
+  modify_footnote(all_stat_cols() ~ NA)
 ```
 
 
@@ -335,9 +335,9 @@ df %>%
     all_stat_cols(stat_0 = FALSE) ~ "**Auditoria virtual**"
   ) %>%
   modify_footnote(
-    label ~ paste0("Dados ausentes: ", n_miss_escolaridade)
-  ) %>%
-  modify_footnote(all_stat_cols() ~ "%")
+    label ~ paste0("Dados ausentes: ", n_miss_escolaridade),
+    all_stat_cols() ~ NA
+  )
 ```
 
 
@@ -544,5 +544,5 @@ df %>%
   modify_spanning_header(
     all_stat_cols(stat_0 = FALSE) ~ "**Auditoria virtual**"
   ) %>%
-  modify_footnote(all_stat_cols() ~ "%")
+  modify_footnote(all_stat_cols() ~ NA)
 ```
