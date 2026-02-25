@@ -11,8 +11,8 @@ id = '019c9119-f6da-9c55-bbd0-810df47f1e7f'
 dashboard_url = 'https://connect.posit.cloud/amandasmagalhaes/content/019c9119-f6da-9c55-bbd0-810df47f1e7f'
 direct_url = 'https://019c9119-f6da-9c55-bbd0-810df47f1e7f.share.connect.posit.cloud'
 logs_url = 'https://connect.posit.cloud/amandasmagalhaes/content/019c9119-f6da-9c55-bbd0-810df47f1e7f/history'
-deployed_at = '2026-02-25T10:38:55-05:00'
-bundle_id = '019c9574-0927-f182-c17e-15880d579123'
+deployed_at = '2026-02-25T10:59:56-05:00'
+bundle_id = '019c9587-44fa-19b6-1336-84e6b88eee65'
 files = [
   '.posit/publish/analises_elsi_urbe-PPVV.toml',
   '.posit/publish/deployments/deployment-AJM6.toml',
