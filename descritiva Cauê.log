@@ -1,0 +1,451 @@
+------------------------------------------------------------------------------------------------------------------
+      name:  <unnamed>
+       log:  C:\Users\amand\Desktop\descritiva CauÃª.log
+  log type:  text
+ opened on:  14 Aug 2024, 19:02:29
+
+. svyset
+
+      pweight: <none>
+          VCE: linearized
+  Single unit: centered
+     Strata 1: estrato
+         SU 1: upa
+        FPC 1: <zero>
+     Weight 1: peso_calibrado
+
+. tab zona
+
+       Zona |      Freq.     Percent        Cum.
+------------+-----------------------------------
+     Urbano |      7,935       84.31       84.31
+      Rural |      1,477       15.69      100.00
+------------+-----------------------------------
+      Total |      9,412      100.00
+
+. tab zona, nol
+
+       Zona |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          1 |      7,935       84.31       84.31
+          2 |      1,477       15.69      100.00
+------------+-----------------------------------
+      Total |      9,412      100.00
+
+. tab n1
+
+ Em geral, como avalia |
+          a sua saúde? |      Freq.     Percent        Cum.
+-----------------------+-----------------------------------
+Muito boa ou excelente |        594        6.31        6.31
+                   Boa |      3,376       35.87       42.18
+               Regular |      4,266       45.33       87.51
+                  Ruim |        744        7.90       95.41
+            Muito Ruim |        410        4.36       99.77
+Não sabe/Não respondeu |         22        0.23      100.00
+-----------------------+-----------------------------------
+                 Total |      9,412      100.00
+
+. tab n1, nol
+
+  Em geral, |
+como avalia |
+      a sua |
+     saúde? |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          1 |        594        6.31        6.31
+          2 |      3,376       35.87       42.18
+          3 |      4,266       45.33       87.51
+          4 |        744        7.90       95.41
+          5 |        410        4.36       99.77
+          9 |         22        0.23      100.00
+------------+-----------------------------------
+      Total |      9,412      100.00
+
+. recode (1 2 3 = 0 "Muito boa/Boa/Regular") (4 5 =1 "Muito ruim/ruim") (9=.), gen (AAS)
+too few variables specified
+r(102);
+
+. recode n1 (1 2 3 = 0 "Muito boa/Boa/Regular") (4 5 =1 "Muito ruim/ruim") (9=.), gen (AAS)
+(9412 differences between n1 and AAS)
+
+. tab AAS
+
+     RECODE of n1 (Em |
+ geral, como avalia a |
+          sua saúde?) |      Freq.     Percent        Cum.
+----------------------+-----------------------------------
+Muito boa/Boa/Regular |      8,236       87.71       87.71
+      Muito ruim/ruim |      1,154       12.29      100.00
+----------------------+-----------------------------------
+                Total |      9,390      100.00
+
+. svy: tab AAS, ci percent
+(running tabulate on estimation sample)
+
+Number of strata   =         4                  Number of obs     =      9,390
+Number of PSUs     =       282                  Population size   = 9,393.7814
+                                                Design df         =        278
+
+----------------------------------------------
+RECODE of |
+n1 (Em    |
+geral,    |
+como      |
+avalia a  |
+sua       |
+saúde?)   | percentage          lb          ub
+----------+-----------------------------------
+ Muito bo |      88.36       87.09       89.52
+ Muito ru |      11.64       10.48       12.91
+          | 
+    Total |        100                        
+----------------------------------------------
+  Key:  percentage  =  cell percentage
+        lb          =  lower 95% confidence bound for cell percentage
+        ub          =  upper 95% confidence bound for cell percentage
+
+. sum idade
+
+    Variable |        Obs        Mean    Std. Dev.       Min        Max
+-------------+---------------------------------------------------------
+       idade |      9,412    63.55844    10.14839         50        105
+
+. gen filtro =1 if zona==1 & idade>=60
+(4,859 missing values generated)
+
+. tab filtro
+
+     filtro |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          1 |      4,553      100.00      100.00
+------------+-----------------------------------
+      Total |      4,553      100.00
+
+. tab filtro AAS
+
+           |   RECODE of n1 (Em
+           | geral, como avalia a
+           |      sua saúde?)
+    filtro | Muito boa  Muito rui |     Total
+-----------+----------------------+----------
+         1 |     3,975        567 |     4,542 
+-----------+----------------------+----------
+     Total |     3,975        567 |     4,542 
+
+. replace filtro = . if AAS==.
+(11 real changes made, 11 to missing)
+
+. tab filtro
+
+     filtro |      Freq.     Percent        Cum.
+------------+-----------------------------------
+          1 |      4,542      100.00      100.00
+------------+-----------------------------------
+      Total |      4,542      100.00
+
+. svy, subpop (if filtro==1): tab AAS, ci percent
+(running tabulate on estimation sample)
+
+Number of strata   =         4                  Number of obs     =      9,412
+Number of PSUs     =       282                  Population size   =      9,412
+                                                Subpop. no. obs   =      4,542
+                                                Subpop. size      = 4,139.7669
+                                                Design df         =        278
+
+----------------------------------------------
+RECODE of |
+n1 (Em    |
+geral,    |
+como      |
+avalia a  |
+sua       |
+saúde?)   | percentage          lb          ub
+----------+-----------------------------------
+ Muito bo |      88.28       86.92       89.53
+ Muito ru |      11.72       10.47       13.08
+          | 
+    Total |        100                        
+----------------------------------------------
+  Key:  percentage  =  cell percentage
+        lb          =  lower 95% confidence bound for cell percentage
+        ub          =  upper 95% confidence bound for cell percentage
+
+. tab sexo
+
+       Sexo |      Freq.     Percent        Cum.
+------------+-----------------------------------
+   Feminino |      5,314       56.46       56.46
+  Masculino |      4,098       43.54      100.00
+------------+-----------------------------------
+      Total |      9,412      100.00
+
+. svy, subpop (if filtro==1): tab sexo, ci percent
+(running tabulate on estimation sample)
+
+Number of strata   =         4                  Number of obs     =      9,412
+Number of PSUs     =       282                  Population size   =      9,412
+                                                Subpop. no. obs   =      4,542
+                                                Subpop. size      = 4,139.7669
+                                                Design df         =        278
+
+----------------------------------------------
+     Sexo | percentage          lb          ub
+----------+-----------------------------------
+ Feminino |      56.88        54.1       59.61
+ Masculin |      43.12       40.39        45.9
+          | 
+    Total |        100                        
+----------------------------------------------
+  Key:  percentage  =  cell percentage
+        lb          =  lower 95% confidence bound for cell percentage
+        ub          =  upper 95% confidence bound for cell percentage
+
+. recode (50/59=.) (60/69=1 "60-69") (70/79=2 "70-79") (80/max=3 "80+"), gen (FX)
+too few variables specified
+r(102);
+
+. recode idade (50/59=.) (60/69=1 "60-69") (70/79=2 "70-79") (80/max=3 "80+"), gen (FX)
+(9412 differences between idade and FX)
+
+. tab FX
+
+  RECODE of |
+      idade |
+    (Idade) |      Freq.     Percent        Cum.
+------------+-----------------------------------
+      60-69 |      2,875       52.93       52.93
+      70-79 |      1,781       32.79       85.71
+        80+ |        776       14.29      100.00
+------------+-----------------------------------
+      Total |      5,432      100.00
+
+. svy, subpop (if filtro==1): tab FX, ci percent
+(running tabulate on estimation sample)
+
+Number of strata   =         4                  Number of obs     =      9,412
+Number of PSUs     =       282                  Population size   =      9,412
+                                                Subpop. no. obs   =      4,542
+                                                Subpop. size      = 4,139.7669
+                                                Design df         =        278
+
+----------------------------------------------
+RECODE of |
+idade     |
+(Idade)   | percentage          lb          ub
+----------+-----------------------------------
+    60-69 |      56.54       53.71       59.32
+    70-79 |      29.54        27.5       31.66
+      80+ |      13.92       11.99       16.11
+          | 
+    Total |        100                        
+----------------------------------------------
+  Key:  percentage  =  cell percentage
+        lb          =  lower 95% confidence bound for cell percentage
+        ub          =  upper 95% confidence bound for cell percentage
+
+. svy, subpop (if filtro==1): tab sexo AAS , ci percent row
+(running tabulate on estimation sample)
+
+Number of strata   =         4                  Number of obs     =      9,412
+Number of PSUs     =       282                  Population size   =      9,412
+                                                Subpop. no. obs   =      4,542
+                                                Subpop. size      = 4,139.7669
+                                                Design df         =        278
+
+-------------------------------------------------------
+          |  RECODE of n1 (Em geral, como avalia a sua 
+          |                   saúde?)                  
+     Sexo |      Muito bo       Muito ru          Total
+----------+--------------------------------------------
+ Feminino |         87.61          12.39            100
+          |    [86,89.06]     [10.94,14]               
+          | 
+ Masculin |         89.18          10.82            100
+          | [87.15,90.92]  [9.081,12.85]               
+          | 
+    Total |         88.28          11.72            100
+          | [86.92,89.53]  [10.47,13.08]               
+-------------------------------------------------------
+  Key:  row percentage
+        [95% confidence interval for row percentage]
+
+  Pearson:
+    Uncorrected   chi2(1)         =    5.4916
+    Design-based  F(1, 278)       =    1.9028     P = 0.1689
+
+. svy, subpop (if filtro==1): tab FX AAS , ci percent row
+(running tabulate on estimation sample)
+
+Number of strata   =         4                  Number of obs     =      9,412
+Number of PSUs     =       282                  Population size   =      9,412
+                                                Subpop. no. obs   =      4,542
+                                                Subpop. size      = 4,139.7669
+                                                Design df         =        278
+
+-------------------------------------------------------
+RECODE of |  RECODE of n1 (Em geral, como avalia a sua 
+idade     |                   saúde?)                  
+(Idade)   |      Muito bo       Muito ru          Total
+----------+--------------------------------------------
+    60-69 |         89.38          10.62            100
+          | [87.67,90.88]  [9.118,12.33]               
+          | 
+    70-79 |         86.67          13.33            100
+          | [84.04,88.92]  [11.08,15.96]               
+          | 
+      80+ |         87.25          12.75            100
+          |  [83.9,89.99]   [10.01,16.1]               
+          | 
+    Total |         88.28          11.72            100
+          | [86.92,89.53]  [10.47,13.08]               
+-------------------------------------------------------
+  Key:  row percentage
+        [95% confidence interval for row percentage]
+
+  Pearson:
+    Uncorrected   chi2(2)         =   14.5545
+    Design-based  F(1.95, 541.37) =    2.3290     P = 0.0999
+
+. recode idade (50/59=.) (60/64=1 "60-64") (65/69=2 "65-69") (70/74=3 "70-74") (75/max=3 "75+"), gen (FX2)
+(9412 differences between idade and FX2)
+
+. svy, subpop (if filtro==1): tab FX2 AAS , ci percent row
+(running tabulate on estimation sample)
+
+Number of strata   =         4                  Number of obs     =      9,412
+Number of PSUs     =       282                  Population size   =      9,412
+                                                Subpop. no. obs   =      4,542
+                                                Subpop. size      = 4,139.7669
+                                                Design df         =        278
+
+-------------------------------------------------------
+RECODE of |  RECODE of n1 (Em geral, como avalia a sua 
+idade     |                   saúde?)                  
+(Idade)   |      Muito bo       Muito ru          Total
+----------+--------------------------------------------
+    60-64 |         89.19          10.81            100
+          | [86.99,91.06]  [8.936,13.01]               
+          | 
+    65-69 |         89.63          10.37            100
+          | [87.24,91.61]   [8.39,12.76]               
+          | 
+      75+ |         86.86          13.14            100
+          | [84.82,88.66]  [11.34,15.18]               
+          | 
+    Total |         88.28          11.72            100
+          | [86.92,89.53]  [10.47,13.08]               
+-------------------------------------------------------
+  Key:  row percentage
+        [95% confidence interval for row percentage]
+
+  Pearson:
+    Uncorrected   chi2(2)         =   14.5016
+    Design-based  F(1.92, 534.90) =    2.4983     P = 0.0854
+
+. drop FX2
+
+. recode idade (50/59=.) (60/64=1 "60-64") (65/69=2 "65-69") (70/74=3 "70-74") (75/max=4 "75+"), gen (FX2)
+(9412 differences between idade and FX2)
+
+. svy, subpop (if filtro==1): tab FX2 AAS , ci percent row
+(running tabulate on estimation sample)
+
+Number of strata   =         4                  Number of obs     =      9,412
+Number of PSUs     =       282                  Population size   =      9,412
+                                                Subpop. no. obs   =      4,542
+                                                Subpop. size      = 4,139.7669
+                                                Design df         =        278
+
+-------------------------------------------------------
+RECODE of |  RECODE of n1 (Em geral, como avalia a sua 
+idade     |                   saúde?)                  
+(Idade)   |      Muito bo       Muito ru          Total
+----------+--------------------------------------------
+    60-64 |         89.19          10.81            100
+          | [86.99,91.06]  [8.936,13.01]               
+          | 
+    65-69 |         89.63          10.37            100
+          | [87.24,91.61]   [8.39,12.76]               
+          | 
+    70-74 |         88.52          11.48            100
+          | [84.81,91.42]   [8.58,15.19]               
+          | 
+      75+ |         85.85          14.15            100
+          | [83.62,87.82]  [12.18,16.38]               
+          | 
+    Total |         88.28          11.72            100
+          | [86.92,89.53]  [10.47,13.08]               
+-------------------------------------------------------
+  Key:  row percentage
+        [95% confidence interval for row percentage]
+
+  Pearson:
+    Uncorrected   chi2(3)         =   21.1489
+    Design-based  F(2.72, 756.81) =    2.3457     P = 0.0778
+
+. recode idade (50/59=.) (60/64=1 "60-64") (65/69=2 "65-69") (70/74=3 "70-74") (75/79=4 "75-79") (80/max=5 "80+"),
+>  gen (FX3)
+(9412 differences between idade and FX3)
+
+. svy, subpop (if filtro==1): tab FX3 AAS , ci percent row
+(running tabulate on estimation sample)
+
+Number of strata   =         4                  Number of obs     =      9,412
+Number of PSUs     =       282                  Population size   =      9,412
+                                                Subpop. no. obs   =      4,542
+                                                Subpop. size      = 4,139.7669
+                                                Design df         =        278
+
+-------------------------------------------------------
+RECODE of |  RECODE of n1 (Em geral, como avalia a sua 
+idade     |                   saúde?)                  
+(Idade)   |      Muito bo       Muito ru          Total
+----------+--------------------------------------------
+    60-64 |         89.19          10.81            100
+          | [86.99,91.06]  [8.936,13.01]               
+          | 
+    65-69 |         89.63          10.37            100
+          | [87.24,91.61]   [8.39,12.76]               
+          | 
+    70-74 |         88.52          11.48            100
+          | [84.81,91.42]   [8.58,15.19]               
+          | 
+    75-79 |         84.36          15.64            100
+          | [81.37,86.95]  [13.05,18.63]               
+          | 
+      80+ |         87.25          12.75            100
+          |  [83.9,89.99]   [10.01,16.1]               
+          | 
+    Total |         88.28          11.72            100
+          | [86.92,89.53]  [10.47,13.08]               
+-------------------------------------------------------
+  Key:  row percentage
+        [95% confidence interval for row percentage]
+
+  Pearson:
+    Uncorrected   chi2(4)         =   26.2758
+    Design-based  F(3.53, 980.87) =    2.3231     P = 0.0630
+
+. tab f2
+
+     Na sua |
+ vizinhança |
+    existem |
+   casas ou |
+    prédios |
+danificados |
+/abandonado |
+         s? |      Freq.     Percent        Cum.
+------------+-----------------------------------
+        Nao |      6,107       64.89       64.89
+        Sim |      1,454       15.45       80.33
+         NA |      1,477       15.69       96.03
+      NS/NR |        374        3.97      100.00
+------------+-----------------------------------
+      Total |      9,412      100.00
+
+. save "C:\Users\amand\Downloads\ELSI_Portugues_1a_onda.dta (1)\ELSI Portugues (1a onda) stata13.dta", replace
+file C:\Users\amand\Downloads\ELSI_Portugues_1a_onda.dta (1)\ELSI Portugues (1a onda) stata13.dta saved
+
+. exit, clear
