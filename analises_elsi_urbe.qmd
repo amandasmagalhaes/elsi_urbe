@@ -240,7 +240,7 @@ df %>%
 
 ```{r}
 #| label: Tabela faixa etária
-#| code-summary: Tabela faixa etária
+#| code-summary: Tabela
 
 df %>%
   filter(zona == 1) %>%
@@ -268,7 +268,7 @@ df %>%
 
 ```{r}
 #| label: Tabela faixa etária com peso
-#| code-summary: Tabela faixa etária com peso
+#| code-summary: Tabela com peso
 
 df %>%
   filter(zona == 1) %>%
@@ -304,7 +304,7 @@ df %>%
 
 ```{r}
 #| label: Tabela cor/raça
-#| code-summary: Tabela cor/raça
+#| code-summary: Tabela
 
 n_miss_cor_raca <- df %>% 
   filter(zona == 1) %>% 
@@ -339,7 +339,7 @@ df %>%
 
 ```{r}
 #| label: Tabela cor/raça com peso
-#| code-summary: Tabela cor/raça com peso
+#| code-summary: Tabela com peso
 
 df %>%
   filter(zona == 1) %>%
@@ -459,7 +459,7 @@ df %>%
 
 ```{r}
 #| label: Tabela estado civil
-#| code-summary: Tabela estado civil
+#| code-summary: Tabela
 
 df %>%
   filter(zona == 1) %>%
@@ -485,7 +485,7 @@ df %>%
 
 ```{r}
 #| label: Tabela estado civil com peso
-#| code-summary: Tabela estado civil com peso
+#| code-summary: Tabela com peso
 
 df %>%
   filter(zona == 1) %>%
@@ -519,7 +519,7 @@ df %>%
 
 ```{r}
 #| label: Tabela DCNT
-#| code-summary: Tabela DCNT
+#| code-summary: Tabela
 
 n_miss_dcnt <- df %>% 
   filter(zona == 1) %>% 
@@ -554,7 +554,7 @@ df %>%
 
 ```{r}
 #| label: Tabela DCNT com peso
-#| code-summary: Tabela DCNT com peso
+#| code-summary: Tabela com peso
 
 df %>%
   filter(zona == 1) %>%
@@ -592,7 +592,7 @@ df %>%
 
 ```{r}
 #| label: Tabela consultas
-#| code-summary: Tabela consultas
+#| code-summary: Tabela
 
 df %>%
   filter(zona == 1) %>%
@@ -603,7 +603,7 @@ df %>%
   select(consultas, cidade_auditoria) %>%
   tbl_summary(
     by = cidade_auditoria,
-    label = list(consultas ~ "Consultas médicas (12 meses)")
+    label = list(consultas ~ "Consulta médica (12 meses)")
   ) %>%
   add_overall(last = TRUE) %>%
   add_p(pvalue_fun = ~style_pvalue(.x, digits = 3)) %>%
@@ -618,7 +618,7 @@ df %>%
 
 ```{r}
 #| label: Tabela consultas com peso
-#| code-summary: Tabela consultas com peso
+#| code-summary: Tabela com peso
 
 df %>%
   filter(zona == 1) %>%
@@ -630,7 +630,7 @@ df %>%
   tbl_svysummary(
     by = cidade_auditoria,
     include = c(consultas, cidade_auditoria),
-    label = list(consultas ~ "Consultas médicas (12 meses)"),
+    label = list(consultas ~ "Consulta médica (12 meses)"),
     statistic = list(all_categorical() ~ "{p}%")
   ) %>%
   add_overall(last = TRUE) %>%
@@ -648,12 +648,81 @@ df %>%
 ```
 
 
+## Consumo regular de frutas e hortaliças
 
+```{r}
+#| label: Tabela frutas e hortaliças
+#| code-summary: Tabela
 
+n_miss_regularFH <- df %>% 
+  filter(zona == 1) %>% 
+  summarise(n = sum(is.na(regularFH))) %>% 
+  pull(n)
 
+df %>%
+  filter(zona == 1) %>%
+  mutate(
+    regularFH = factor(regularFH, 
+                       levels = c(0, 1), 
+                       labels = c("<5", "≥5")),
+    cidade_auditoria = factor(cidade_auditoria, levels = c(0, 1), labels = c("Não", "Sim"))
+  ) %>%
+  select(regularFH, cidade_auditoria) %>%
+  tbl_summary(
+    by = cidade_auditoria,
+    label = list(regularFH ~ "Consumo regular de frutas e hortaliças (dias/semana)"),
+    missing = "no"
+  ) %>%
+  add_overall(last = TRUE) %>%
+  add_p(pvalue_fun = ~style_pvalue(.x, digits = 3)) %>%
+  modify_header(
+    label = "**Variável**",
+    stat_0 = "**Total**<br>N = {N}"
+  ) %>%
+  modify_spanning_header(
+    all_stat_cols(stat_0 = FALSE) ~ "**Auditoria virtual**"
+  ) %>%
+  modify_footnote(
+    label ~ paste0("Dados ausentes: ", n_miss_regularFH)
+  )
+```
 
+```{r}
+#| label: Tabela frutas e hortaliças com peso
+#| code-summary: Tabela com peso
 
-
+df %>%
+  filter(zona == 1) %>%
+  mutate(
+    regularFH = factor(regularFH, 
+                       levels = c(0, 1), 
+                       labels = c("<5", "≥5")),
+    cidade_auditoria = factor(cidade_auditoria, levels = c(0, 1), labels = c("Não", "Sim"))
+  ) %>%
+  as_survey_design(ids = upa, strata = estrato, weights = peso_calibrado) %>%
+  tbl_svysummary(
+    by = cidade_auditoria,
+    include = c(regularFH, cidade_auditoria),
+    label = list(regularFH ~ "Consumo regular de frutas e hortaliças (dias/semana)"),
+    statistic = list(all_categorical() ~ "{p}%"),
+    missing = "no"
+  ) %>%
+  add_overall(last = TRUE) %>%
+  add_p(pvalue_fun = ~style_pvalue(.x, digits = 3)) %>%
+  modify_header(
+    label = "**Variável**",
+    stat_0 = "**Total**",
+    stat_1 = "**Não**",
+    stat_2 = "**Sim**"
+  ) %>%
+  modify_spanning_header(
+    all_stat_cols(stat_0 = FALSE) ~ "**Auditoria virtual**"
+  ) %>%
+  modify_footnote(
+    label ~ paste0("Dados ausentes: ", n_miss_regularFH),
+    all_stat_cols() ~ NA
+  )
+```
 
 
 ## Renda mensal domiciliar per capita
@@ -790,7 +859,7 @@ df %>%
 
 ```{r}
 #| label: Tabela renda (tercis)
-#| code-summary: Tabela com peso (tercis)
+#| code-summary: Tabela
 
 n_miss_renda2 <- df %>% 
   filter(zona == 1) %>% 
@@ -827,7 +896,7 @@ df %>%
 
 ```{r}
 #| label: Tabela renda (tercis) com peso
-#| code-summary: Tabela com peso (tercis) com peso
+#| code-summary: Tabela com peso
 
 df %>%
   filter(zona == 1) %>%
@@ -858,6 +927,83 @@ df %>%
   ) %>%
   modify_footnote(
     label ~ paste0("Dados ausentes: ", n_miss_renda),
+    all_stat_cols() ~ NA
+  )
+```
+
+
+## Programa público de estímulo à prática de atividade física (AF)
+
+```{r}
+#| label: Tabela programa AF
+#| code-summary: Tabela
+
+n_miss_programa <- df %>% 
+  filter(zona == 1) %>% 
+  summarise(n = sum(is.na(programa))) %>% 
+  pull(n)
+
+df %>%
+  filter(zona == 1) %>%
+  mutate(
+    programa = factor(programa, 
+                      levels = c(0, 1, 2), 
+                      labels = c("Não conhece", "Conhece, mas não participa", "Conhece e participa")),
+    cidade_auditoria = factor(cidade_auditoria, levels = c(0, 1), labels = c("Não", "Sim"))
+  ) %>%
+  select(programa, cidade_auditoria) %>%
+  tbl_summary(
+    by = cidade_auditoria,
+    label = list(programa ~ "Programa público de AF"),
+    missing = "no"
+  ) %>%
+  add_overall(last = TRUE) %>%
+  add_p(pvalue_fun = ~style_pvalue(.x, digits = 3)) %>%
+  modify_header(
+    label = "**Variável**",
+    stat_0 = "**Total**<br>N = {N}"
+  ) %>%
+  modify_spanning_header(
+    all_stat_cols(stat_0 = FALSE) ~ "**Auditoria virtual**"
+  ) %>%
+  modify_footnote(
+    label ~ paste0("Dados ausentes: ", n_miss_programa)
+  )
+```
+
+```{r}
+#| label: Tabela programa AF com peso
+#| code-summary: Tabela com peso
+
+df %>%
+  filter(zona == 1) %>%
+  mutate(
+    programa = factor(programa, 
+                      levels = c(0, 1, 2), 
+                      labels = c("Não conhece", "Conhece, mas não participa", "Conhece e participa")),
+    cidade_auditoria = factor(cidade_auditoria, levels = c(0, 1), labels = c("Não", "Sim"))
+  ) %>%
+  as_survey_design(ids = upa, strata = estrato, weights = peso_calibrado) %>%
+  tbl_svysummary(
+    by = cidade_auditoria,
+    include = c(programa, cidade_auditoria),
+    label = list(programa ~ "Programa público de AF"),
+    statistic = list(all_categorical() ~ "{p}%"),
+    missing = "no"
+  ) %>%
+  add_overall(last = TRUE) %>%
+  add_p(pvalue_fun = ~style_pvalue(.x, digits = 3)) %>%
+  modify_header(
+    label = "**Variável**",
+    stat_0 = "**Total**",
+    stat_1 = "**Não**",
+    stat_2 = "**Sim**"
+  ) %>%
+  modify_spanning_header(
+    all_stat_cols(stat_0 = FALSE) ~ "**Auditoria virtual**"
+  ) %>%
+  modify_footnote(
+    label ~ paste0("Dados ausentes: ", n_miss_programa),
     all_stat_cols() ~ NA
   )
 ```
@@ -928,4 +1074,230 @@ df %>%
     all_stat_cols(stat_0 = FALSE) ~ "**Auditoria virtual**"
   ) %>%
   modify_footnote(all_stat_cols() ~ NA)
+```
+
+
+## Atividade física (AF) global
+
+```{r}
+#| label: Tabela AF global
+#| code-summary: Tabela
+
+n_miss_AF_global <- df %>% 
+  filter(zona == 1) %>% 
+  summarise(n = sum(is.na(AF_global))) %>% 
+  pull(n)
+
+df %>%
+  filter(zona == 1) %>%
+  mutate(
+    AF_global = factor(AF_global, 
+                       levels = c(0, 1), 
+                       labels = c("Inativo", "Ativo")),
+    cidade_auditoria = factor(cidade_auditoria, levels = c(0, 1), labels = c("Não", "Sim"))
+  ) %>%
+  select(AF_global, cidade_auditoria) %>%
+  tbl_summary(
+    by = cidade_auditoria,
+    label = list(AF_global ~ "AF global"),
+    missing = "no"
+  ) %>%
+  add_overall(last = TRUE) %>%
+  add_p(pvalue_fun = ~style_pvalue(.x, digits = 3)) %>%
+  modify_header(
+    label = "**Variável**",
+    stat_0 = "**Total**<br>N = {N}"
+  ) %>%
+  modify_spanning_header(
+    all_stat_cols(stat_0 = FALSE) ~ "**Auditoria virtual**"
+  ) %>%
+  modify_footnote(
+    label ~ paste0("Dados ausentes: ", n_miss_AF_global)
+  )
+```
+
+
+```{r}
+#| label: Tabela AF global com peso
+#| code-summary: Tabela com peso
+
+df %>%
+  filter(zona == 1) %>%
+  mutate(
+    AF_global = factor(AF_global, 
+                       levels = c(0, 1), 
+                       labels = c("Inativo", "Ativo")),
+    cidade_auditoria = factor(cidade_auditoria, levels = c(0, 1), labels = c("Não", "Sim"))
+  ) %>%
+  as_survey_design(ids = upa, strata = estrato, weights = peso_calibrado) %>%
+  tbl_svysummary(
+    by = cidade_auditoria,
+    include = c(AF_global, cidade_auditoria),
+    label = list(AF_global ~ "AF global"),
+    statistic = list(all_categorical() ~ "{p}%"),
+    missing = "no"
+  ) %>%
+  add_overall(last = TRUE) %>%
+  add_p(pvalue_fun = ~style_pvalue(.x, digits = 3)) %>%
+  modify_header(
+    label = "**Variável**",
+    stat_0 = "**Total**",
+    stat_1 = "**Não**",
+    stat_2 = "**Sim**"
+  ) %>%
+  modify_spanning_header(
+    all_stat_cols(stat_0 = FALSE) ~ "**Auditoria virtual**"
+  ) %>%
+  modify_footnote(
+    label ~ paste0("Dados ausentes: ", n_miss_AF_global),
+    all_stat_cols() ~ NA
+  )
+```
+
+
+## Sintomas depressivos
+
+```{r}
+#| label: Tabela sintomas depressivos
+#| code-summary: Tabela
+
+n_miss_sint_dep <- df %>% 
+  filter(zona == 1) %>% 
+  summarise(n = sum(is.na(sint_dep))) %>% 
+  pull(n)
+
+df %>%
+  filter(zona == 1) %>%
+  mutate(
+    sint_dep = factor(sint_dep, levels = c(0, 1), labels = c("Não", "Sim")),
+    cidade_auditoria = factor(cidade_auditoria, levels = c(0, 1), labels = c("Não", "Sim"))
+  ) %>%
+  select(sint_dep, cidade_auditoria) %>%
+  tbl_summary(
+    by = cidade_auditoria,
+    label = list(sint_dep ~ "Sintomas depressivos"),
+    missing = "no"
+  ) %>%
+  add_overall(last = TRUE) %>%
+  add_p(pvalue_fun = ~style_pvalue(.x, digits = 3)) %>%
+  modify_header(
+    label = "**Variável**",
+    stat_0 = "**Total**<br>N = {N}"
+  ) %>%
+  modify_spanning_header(
+    all_stat_cols(stat_0 = FALSE) ~ "**Auditoria virtual**"
+  ) %>%
+  modify_footnote(
+    label ~ paste0("Dados ausentes: ", n_miss_sint_dep)
+  )
+```
+
+
+```{r}
+#| label: Tabela sintomas depressivos com peso
+#| code-summary: Tabela com peso
+
+df %>%
+  filter(zona == 1) %>%
+  mutate(
+    sint_dep = factor(sint_dep, levels = c(0, 1), labels = c("Não", "Sim")),
+    cidade_auditoria = factor(cidade_auditoria, levels = c(0, 1), labels = c("Não", "Sim"))
+  ) %>%
+  as_survey_design(ids = upa, strata = estrato, weights = peso_calibrado) %>%
+  tbl_svysummary(
+    by = cidade_auditoria,
+    include = c(sint_dep, cidade_auditoria),
+    label = list(sint_dep ~ "Sintomas depressivos"),
+    statistic = list(all_categorical() ~ "{p}%"),
+    missing = "no"
+  ) %>%
+  add_overall(last = TRUE) %>%
+  add_p(pvalue_fun = ~style_pvalue(.x, digits = 3)) %>%
+  modify_header(
+    label = "**Variável**",
+    stat_0 = "**Total**",
+    stat_1 = "**Não**",
+    stat_2 = "**Sim**"
+  ) %>%
+  modify_spanning_header(
+    all_stat_cols(stat_0 = FALSE) ~ "**Auditoria virtual**"
+  ) %>%
+  modify_footnote(
+    label ~ paste0("Dados ausentes: ", n_miss_sint_dep),
+    all_stat_cols() ~ NA
+  )
+```
+
+
+## Autoavaliação de saúde
+
+```{r}
+#| label: Tabela autoavaliação de saúde
+#| code-summary: Tabela
+
+n_miss_aas <- df %>% 
+  filter(zona == 1) %>% 
+  summarise(n = sum(is.na(aas))) %>% 
+  pull(n)
+
+df %>%
+  filter(zona == 1) %>%
+  mutate(
+    aas = factor(aas, levels = c(0, 1), labels = c("Muito ruim/ruim", "Excelente/Muito boa/Boa/Regular")),
+    cidade_auditoria = factor(cidade_auditoria, levels = c(0, 1), labels = c("Não", "Sim"))
+  ) %>%
+  select(aas, cidade_auditoria) %>%
+  tbl_summary(
+    by = cidade_auditoria,
+    label = list(aas ~ "Autoavaliação de saúde"),
+    missing = "no"
+  ) %>%
+  add_overall(last = TRUE) %>%
+  add_p(pvalue_fun = ~style_pvalue(.x, digits = 3)) %>%
+  modify_header(
+    label = "**Variável**",
+    stat_0 = "**Total**<br>N = {N}"
+  ) %>%
+  modify_spanning_header(
+    all_stat_cols(stat_0 = FALSE) ~ "**Auditoria virtual**"
+  ) %>%
+  modify_footnote(
+    label ~ paste0("Dados ausentes: ", n_miss_aas)
+  )
+```
+
+
+```{r}
+#| label: Tabela autoavaliação de saúde com peso
+#| code-summary: Tabela com peso
+
+df %>%
+  filter(zona == 1) %>%
+  mutate(
+    aas = factor(aas, levels = c(0, 1), labels = c("Muito ruim/ruim", "Excelente/Muito boa/Boa/Regular")),
+    cidade_auditoria = factor(cidade_auditoria, levels = c(0, 1), labels = c("Não", "Sim"))
+  ) %>%
+  as_survey_design(ids = upa, strata = estrato, weights = peso_calibrado) %>%
+  tbl_svysummary(
+    by = cidade_auditoria,
+    include = c(aas, cidade_auditoria),
+    label = list(aas ~ "Autoavaliação de saúde"),
+    statistic = list(all_categorical() ~ "{p}%"),
+    missing = "no"
+  ) %>%
+  add_overall(last = TRUE) %>%
+  add_p(pvalue_fun = ~style_pvalue(.x, digits = 3)) %>%
+  modify_header(
+    label = "**Variável**",
+    stat_0 = "**Total**",
+    stat_1 = "**Não**",
+    stat_2 = "**Sim**"
+  ) %>%
+  modify_spanning_header(
+    all_stat_cols(stat_0 = FALSE) ~ "**Auditoria virtual**"
+  ) %>%
+  modify_footnote(
+    label ~ paste0("Dados ausentes: ", n_miss_aas),
+    all_stat_cols() ~ NA
+  )
 ```
