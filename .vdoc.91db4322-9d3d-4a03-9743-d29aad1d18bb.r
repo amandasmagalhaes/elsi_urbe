@@ -1,26 +1,26 @@
----
-title: "Análises ELSI-Urbe"
-author: "Amanda Magalhães e Amanda Andrade"
-date: today
-lang: pt-BR
-format:
-  html:
-    theme: cosmo
-    toc: true
-    toc-location: left
-    number-sections: true
-    code-fold: true
-execute:
-  freeze: auto
----
-
-
-
-# Introdução
-Este documento detalha as análises do ELSI-Urbe utilizando dados da segunda onda do ELSI-Brasil (2019-21) e da auditoria virtual.
-
-
-```{r}
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
 #| label: Pacotes
 #| code-summary: Pacotes
 #| warning: false
@@ -28,47 +28,47 @@ Este documento detalha as análises do ELSI-Urbe utilizando dados da segunda ond
 
 library(pacman)
 p_load(tidyverse, haven, here, survey, srvyr, gtsummary, kableExtra, glmmTMB)
-```
-
-```{r}
+#
+#
+#
 #| label: Separadores
 #| code-summary: Separadores
 #| warning: false
 #| message: false
 
 theme_gtsummary_language("en", decimal.mark = ",", big.mark = ".")
-```
-
-```{r}
+#
+#
+#
 #| label: Knitr
 #| code-summary: Knitr
 
 knitr::opts_chunk$set(fig.align = "center", out.width = "100%")
-```
-
-```{r}
+#
+#
+#
 #| label: PSU
 #| code-summary: PSU
 
 options(survey.lonely.psu = "adjust")
-```
-
-```{r}
+#
+#
+#
 #| label: Banco de dados
 #| code-summary: Banco de dados
 
 df <- read_dta(here("elsi_brasil_auditoria_virtual.dta"))
-```
-
-
-
-# Descritivas
-Análises considerando somente a área urbana e comparando as características de moradores em cidades incluídas ou não na auditoria virtual.
-
-
-## Sexo
-
-```{r}
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
 #| label: Tabela sexo
 #| code-summary: Tabela
 
@@ -92,9 +92,9 @@ df %>%
   modify_spanning_header(
     all_stat_cols(stat_0 = FALSE) ~ "**Auditoria virtual**"
   )
-```
-
-```{r}
+#
+#
+#
 #| label: Tabela sexo com peso
 #| code-summary: Tabela com peso
 
@@ -123,12 +123,12 @@ df %>%
     all_stat_cols(stat_0 = FALSE) ~ "**Auditoria virtual**"
   ) %>%
   modify_footnote(all_stat_cols() ~ NA)
-```
-
-
-## Idade
-
-```{r}
+#
+#
+#
+#
+#
+#
 #| label: Histograma idade
 #| code-summary: Histograma
 
@@ -148,9 +148,9 @@ df %>%
     fill = "Auditoria virtual"
   ) +
   theme(strip.text = element_blank())
-```
-
-```{r}
+#
+#
+#
 #| label: Teste de normalidade idade
 #| code-summary: Teste de normalidade (Shapiro-Wilk)
 
@@ -177,9 +177,9 @@ df %>%
     font_size = 24
   ) %>%
   row_spec(0, bold = TRUE, align = "c")
-```
-
-```{r}
+#
+#
+#
 #| label: Tabela idade
 #| code-summary: Tabela
 
@@ -205,9 +205,9 @@ df %>%
   modify_spanning_header(
     all_stat_cols(stat_0 = FALSE) ~ "**Auditoria virtual**"
   )
-```
-
-```{r}
+#
+#
+#
 #| label: Tabela idade com peso
 #| code-summary: Tabela com peso
 
@@ -236,9 +236,9 @@ df %>%
   modify_spanning_header(
     all_stat_cols(stat_0 = FALSE) ~ "**Auditoria virtual**"
   )
-```
-
-```{r}
+#
+#
+#
 #| label: Tabela faixa etária
 #| code-summary: Tabela
 
@@ -264,9 +264,9 @@ df %>%
   modify_spanning_header(
     all_stat_cols(stat_0 = FALSE) ~ "**Auditoria virtual**"
   )
-```
-
-```{r}
+#
+#
+#
 #| label: Tabela faixa etária com peso
 #| code-summary: Tabela com peso
 
@@ -297,12 +297,12 @@ df %>%
     all_stat_cols(stat_0 = FALSE) ~ "**Auditoria virtual**"
   ) %>%
   modify_footnote(all_stat_cols() ~ NA)
-```
-
-
-## Cor/raça
-
-```{r}
+#
+#
+#
+#
+#
+#
 #| label: Tabela cor/raça
 #| code-summary: Tabela
 
@@ -335,9 +335,9 @@ df %>%
   modify_footnote(
     label ~ paste0("Dados ausentes: ", n_miss_cor_raca)
   )
-```
-
-```{r}
+#
+#
+#
 #| label: Tabela cor/raça com peso
 #| code-summary: Tabela com peso
 
@@ -370,12 +370,12 @@ df %>%
     label ~ paste0("Dados ausentes: ", n_miss_cor_raca),
     all_stat_cols() ~ NA
   )
-```
-
-
-## Escolaridade
-
-```{r}
+#
+#
+#
+#
+#
+#
 #| label: Tabela escolaridade
 #| code-summary: Tabela
 
@@ -410,9 +410,9 @@ df %>%
   modify_footnote(
     label ~ paste0("Dados ausentes: ", n_miss_escolaridade)
   )
-```
-
-```{r}
+#
+#
+#
 #| label: Tabela escolaridade com peso
 #| code-summary: Tabela com peso
 
@@ -452,12 +452,12 @@ df %>%
     label ~ paste0("Dados ausentes: ", n_miss_escolaridade),
     all_stat_cols() ~ NA
   )
-```
-
-
-## Estado civil
-
-```{r}
+#
+#
+#
+#
+#
+#
 #| label: Tabela estado civil
 #| code-summary: Tabela
 
@@ -481,9 +481,9 @@ df %>%
   modify_spanning_header(
     all_stat_cols(stat_0 = FALSE) ~ "**Auditoria virtual**"
   )
-```
-
-```{r}
+#
+#
+#
 #| label: Tabela estado civil com peso
 #| code-summary: Tabela com peso
 
@@ -512,12 +512,12 @@ df %>%
     all_stat_cols(stat_0 = FALSE) ~ "**Auditoria virtual**"
   ) %>%
   modify_footnote(all_stat_cols() ~ NA)
-```
-
-
-## Número de Doenças Crônicas Não Transmissíveis (DCNT)
-
-```{r}
+#
+#
+#
+#
+#
+#
 #| label: Tabela DCNT
 #| code-summary: Tabela
 
@@ -550,9 +550,9 @@ df %>%
   modify_footnote(
     label ~ paste0("Dados ausentes: ", n_miss_dcnt)
   )
-```
-
-```{r}
+#
+#
+#
 #| label: Tabela DCNT com peso
 #| code-summary: Tabela com peso
 
@@ -585,12 +585,12 @@ df %>%
     label ~ paste0("Dados ausentes: ", n_miss_dcnt),
     all_stat_cols() ~ NA
   )
-```
-
-
-## Consulta médica nos últimos 12 meses
-
-```{r}
+#
+#
+#
+#
+#
+#
 #| label: Tabela consultas
 #| code-summary: Tabela
 
@@ -623,9 +623,9 @@ df %>%
   modify_footnote(
     label ~ paste0("Dados ausentes: ", n_miss_consultas)
   )
-```
-
-```{r}
+#
+#
+#
 #| label: Tabela consultas com peso
 #| code-summary: Tabela com peso
 
@@ -663,12 +663,12 @@ df %>%
     label ~ paste0("Dados ausentes: ", n_miss_consultas),
     all_stat_cols() ~ NA
   )
-```
-
-
-## Consumo regular de frutas e hortaliças
-
-```{r}
+#
+#
+#
+#
+#
+#
 #| label: Tabela frutas e hortaliças
 #| code-summary: Tabela
 
@@ -703,9 +703,9 @@ df %>%
   modify_footnote(
     label ~ paste0("Dados ausentes: ", n_miss_regularFH)
   )
-```
-
-```{r}
+#
+#
+#
 #| label: Tabela frutas e hortaliças com peso
 #| code-summary: Tabela com peso
 
@@ -740,12 +740,12 @@ df %>%
     label ~ paste0("Dados ausentes: ", n_miss_regularFH),
     all_stat_cols() ~ NA
   )
-```
-
-
-## Renda mensal domiciliar per capita
-
-```{r}
+#
+#
+#
+#
+#
+#
 #| label: Histograma renda
 #| code-summary: Histograma
 #| warning: false
@@ -767,9 +767,9 @@ df %>%
     fill = "Auditoria virtual"
   ) +
   theme(strip.text = element_blank())
-```
-
-```{r}
+#
+#
+#
 #| label: Teste de normalidade renda
 #| code-summary: Teste de normalidade (Shapiro-Wilk)
 
@@ -796,9 +796,9 @@ df %>%
     font_size = 24
   ) %>%
   row_spec(0, bold = TRUE, align = "c")
-```
-
-```{r}
+#
+#
+#
 #| label: Tabela renda
 #| code-summary: Tabela
 
@@ -833,9 +833,9 @@ df %>%
   modify_footnote(
     label ~ paste0("Dados ausentes: ", n_miss_renda)
   )
-```
-
-```{r}
+#
+#
+#
 #| label: Tabela renda com peso
 #| code-summary: Tabela com peso
 
@@ -873,9 +873,9 @@ df %>%
   modify_footnote(
     label ~ paste0("Dados ausentes: ", n_miss_renda)
   )
-```
-
-```{r}
+#
+#
+#
 #| label: Tabela renda (tercis)
 #| code-summary: Tabela
 
@@ -910,9 +910,9 @@ df %>%
   modify_footnote(
     label ~ paste0("Dados ausentes: ", n_miss_renda2)
   )
-```
-
-```{r}
+#
+#
+#
 #| label: Tabela renda (tercis) com peso
 #| code-summary: Tabela com peso
 
@@ -947,12 +947,12 @@ df %>%
     label ~ paste0("Dados ausentes: ", n_miss_renda),
     all_stat_cols() ~ NA
   )
-```
-
-
-## Programa público de estímulo à prática de atividade física (AF)
-
-```{r}
+#
+#
+#
+#
+#
+#
 #| label: Tabela programa AF
 #| code-summary: Tabela
 
@@ -987,9 +987,9 @@ df %>%
   modify_footnote(
     label ~ paste0("Dados ausentes: ", n_miss_programa)
   )
-```
-
-```{r}
+#
+#
+#
 #| label: Tabela programa AF com peso
 #| code-summary: Tabela com peso
 
@@ -1024,12 +1024,12 @@ df %>%
     label ~ paste0("Dados ausentes: ", n_miss_programa),
     all_stat_cols() ~ NA
   )
-```
-
-
-## Região
-
-```{r}
+#
+#
+#
+#
+#
+#
 #| label: Tabela região
 #| code-summary: Tabela
 
@@ -1057,9 +1057,9 @@ df %>%
   modify_spanning_header(
     all_stat_cols(stat_0 = FALSE) ~ "**Auditoria virtual**"
   )
-```
-
-```{r}
+#
+#
+#
 #| label: Tabela região com peso
 #| code-summary: Tabela com peso
 
@@ -1092,12 +1092,12 @@ df %>%
     all_stat_cols(stat_0 = FALSE) ~ "**Auditoria virtual**"
   ) %>%
   modify_footnote(all_stat_cols() ~ NA)
-```
-
-
-## Atividade física (AF) global
-
-```{r}
+#
+#
+#
+#
+#
+#
 #| label: Tabela AF global
 #| code-summary: Tabela
 
@@ -1132,10 +1132,10 @@ df %>%
   modify_footnote(
     label ~ paste0("Dados ausentes: ", n_miss_AF_global)
   )
-```
-
-
-```{r}
+#
+#
+#
+#
 #| label: Tabela AF global com peso
 #| code-summary: Tabela com peso
 
@@ -1170,12 +1170,12 @@ df %>%
     label ~ paste0("Dados ausentes: ", n_miss_AF_global),
     all_stat_cols() ~ NA
   )
-```
-
-
-## Sintomas depressivos
-
-```{r}
+#
+#
+#
+#
+#
+#
 #| label: Tabela sintomas depressivos
 #| code-summary: Tabela
 
@@ -1208,10 +1208,10 @@ df %>%
   modify_footnote(
     label ~ paste0("Dados ausentes: ", n_miss_sint_dep)
   )
-```
-
-
-```{r}
+#
+#
+#
+#
 #| label: Tabela sintomas depressivos com peso
 #| code-summary: Tabela com peso
 
@@ -1244,12 +1244,12 @@ df %>%
     label ~ paste0("Dados ausentes: ", n_miss_sint_dep),
     all_stat_cols() ~ NA
   )
-```
-
-
-## Autoavaliação de saúde
-
-```{r}
+#
+#
+#
+#
+#
+#
 #| label: Tabela autoavaliação de saúde
 #| code-summary: Tabela
 
@@ -1282,10 +1282,10 @@ df %>%
   modify_footnote(
     label ~ paste0("Dados ausentes: ", n_miss_aas)
   )
-```
-
-
-```{r}
+#
+#
+#
+#
 #| label: Tabela autoavaliação de saúde com peso
 #| code-summary: Tabela com peso
 
@@ -1318,17 +1318,17 @@ df %>%
     label ~ paste0("Dados ausentes: ", n_miss_aas),
     all_stat_cols() ~ NA
   )
-```
-
-
-
-# Desfechos e indicadores compostos
-Análises considerando somente a área urbana e realizadas por meio de modelos de regressão logística com ajuste para o desenho amostral complexo.
-
-
-## AF global
-
-```{r}
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
 #| label: Modelos cluster
 #| code-summary: "Regressão logística com desenho amostral complexo e agrupamento (clusterização) no nível do setor"
 
@@ -1389,9 +1389,9 @@ tabela_final <- map(exposicoes, modelos) %>%
   )
 
 tabela_final
-```
-
-```{r}
+#
+#
+#
 #| label: Modelos multinivel
 #| code-summary: "Regressão logística multinível com efeito aleatório para setor"
 #| warning: false
@@ -1454,7 +1454,7 @@ tabela_final <- map(exposicoes, modelos) %>%
     c(estimate, conf.low, conf.high, p.value) ~ "**Global physical activity**"
   ) %>%
   modify_footnote(
-    label ~ "Each row represents a separate model with a random intercept for census tract, adjusted for sex, age, race/color, and education."
+    label ~ "Each row represents a separate multilevel model with a random intercept for census tract, adjusted for sex, age, race/color, and education."
   ) %>%
   modify_footnote(
     c(estimate) ~ "OR = Odds Ratio",
@@ -1462,4 +1462,7 @@ tabela_final <- map(exposicoes, modelos) %>%
   )
 
 tabela_final
-```
+#
+#
+#
+#
