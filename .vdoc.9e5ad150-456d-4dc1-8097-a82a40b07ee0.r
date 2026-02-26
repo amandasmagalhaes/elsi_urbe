@@ -1135,7 +1135,6 @@ df %>%
 #
 #
 #
-#
 #| label: Tabela AF global com peso
 #| code-summary: Tabela com peso
 
@@ -1168,6 +1167,83 @@ df %>%
   ) %>%
   modify_footnote(
     label ~ paste0("Dados ausentes: ", n_miss_AF_global),
+    all_stat_cols() ~ NA
+  )
+#
+#
+#
+#
+#
+#
+#| label: Tabela caminhada
+#| code-summary: Tabela
+
+n_miss_caminhada_cat <- df %>% 
+  filter(zona == 1) %>% 
+  summarise(n = sum(is.na(caminhada_cat))) %>% 
+  pull(n)
+
+df %>%
+  filter(zona == 1) %>%
+  mutate(
+    caminhada_cat = factor(caminhada_cat, 
+                           levels = c(0, 1), 
+                           labels = c("Inativo", "Ativo")),
+    cidade_auditoria = factor(cidade_auditoria, levels = c(0, 1), labels = c("Não", "Sim"))
+  ) %>%
+  select(caminhada_cat, cidade_auditoria) %>%
+  tbl_summary(
+    by = cidade_auditoria,
+    label = list(caminhada_cat ~ "Caminhada"),
+    missing = "no"
+  ) %>%
+  add_overall(last = TRUE) %>%
+  add_p(pvalue_fun = ~style_pvalue(.x, digits = 3)) %>%
+  modify_header(
+    label = "**Variável**",
+    stat_0 = "**Total**<br>N = {N}"
+  ) %>%
+  modify_spanning_header(
+    all_stat_cols(stat_0 = FALSE) ~ "**Auditoria virtual**"
+  ) %>%
+  modify_footnote(
+    label ~ paste0("Dados ausentes: ", n_miss_caminhada_cat)
+  )
+#
+#
+#
+#| label: Tabela caminhada com peso
+#| code-summary: Tabela com peso
+
+df %>%
+  filter(zona == 1) %>%
+  mutate(
+    caminhada_cat = factor(caminhada_cat, 
+                           levels = c(0, 1), 
+                           labels = c("Inativo", "Ativo")),
+    cidade_auditoria = factor(cidade_auditoria, levels = c(0, 1), labels = c("Não", "Sim"))
+  ) %>%
+  as_survey_design(ids = upa, strata = estrato, weights = peso_calibrado) %>%
+  tbl_svysummary(
+    by = cidade_auditoria,
+    include = c(caminhada_cat, cidade_auditoria),
+    label = list(caminhada_cat ~ "Caminhada"),
+    statistic = list(all_categorical() ~ "{p}%"),
+    missing = "no"
+  ) %>%
+  add_overall(last = TRUE) %>%
+  add_p(pvalue_fun = ~style_pvalue(.x, digits = 3)) %>%
+  modify_header(
+    label = "**Variável**",
+    stat_0 = "**Total**",
+    stat_1 = "**Não**",
+    stat_2 = "**Sim**"
+  ) %>%
+  modify_spanning_header(
+    all_stat_cols(stat_0 = FALSE) ~ "**Auditoria virtual**"
+  ) %>%
+  modify_footnote(
+    label ~ paste0("Dados ausentes: ", n_miss_caminhada_cat),
     all_stat_cols() ~ NA
   )
 #
@@ -1329,15 +1405,15 @@ df %>%
 #
 #
 #
-#| label: Modelos cluster
-#| code-summary: "Regressão logística com desenho amostral complexo e agrupamento (clusterização) no nível do setor"
+#| label: Modelos com peso
+#| code-summary: "Regressão logística com desenho amostral complexo"
 
 # Desenho amostral
 design_modelo <- df %>%
   filter(zona == 1) %>%
   filter(!is.na(AF_global), 
          !is.na(identificador)) %>%
-  as_survey_design(ids = c(upa, setor), strata = estrato, weights = peso_calibrado)
+  as_survey_design(ids = upa, strata = estrato, weights = peso_calibrado)
 
 # Variáveis e rótulos
 rotulos <- c(
@@ -1356,17 +1432,17 @@ modelos <- function(exp_var) {
   # Fórmula dinâmica
   form <- as.formula(paste("AF_global ~", exp_var, "+", paste(ajustes, collapse = " + ")))
   # Modelo
-  fit <- svyglm(
+  fit_glm_af <- svyglm(
     formula = form,
     design = design_modelo,
     family = quasibinomial(link = "logit")
   )
-  # Salva o modelo, exemplo: fit_dom_urbana1_escala
-  assign(paste0("fit_", exp_var), fit, envir = .GlobalEnv)
+  # Salva o modelo, exemplo: fit_glm_af_dom_urbana1_escala
+  assign(paste0("fit_glm_af_", exp_var), fit_glm_af, envir = .GlobalEnv)
   # Rótulo apenas para a exposição atual
   rotulo_atual <- setNames(list(as.character(rotulos[exp_var])), exp_var)
   # Tabela de regressão
-  fit %>%
+  fit_glm_af %>%
     tbl_regression(
       exponentiate = TRUE,
       include = all_of(exp_var),
@@ -1375,8 +1451,8 @@ modelos <- function(exp_var) {
     )
 }
 
-# Tabela final
-tabela_final <- map(exposicoes, modelos) %>%
+# Tabela
+tabela_glm_af <- map(exposicoes, modelos) %>%
   tbl_stack() %>%
   modify_header(
     label = "**Neighborhood indicators**"
@@ -1388,7 +1464,7 @@ tabela_final <- map(exposicoes, modelos) %>%
     label ~ "Each row represents a separate model adjusted for sex, age, race/color, and education."
   )
 
-tabela_final
+tabela_glm_af
 #
 #
 #
@@ -1401,7 +1477,8 @@ tabela_final
 dados <- df %>%
   filter(zona == 1,
          !is.na(AF_global),
-         !is.na(identificador))
+         !is.na(identificador)) %>%
+  mutate(setor = factor(setor))
 
 # Variáveis e rótulos
 rotulos <- c(
@@ -1421,18 +1498,17 @@ modelos <- function(exp_var) {
   form <- as.formula(paste("AF_global ~", exp_var, "+", paste(ajustes, collapse = " + "),
                            "+ (1 | setor)"))
   # Modelo
-  fit <- glmmTMB(
+  fit_glmmTMB_af <- glmmTMB(
     formula = form,
     data = dados,
-    family = binomial(link = "logit"),
-    weights = peso_calibrado
+    family = binomial(link = "logit")
   )
   # Salva o modelo
-  assign(paste0("fit_", exp_var), fit, envir = .GlobalEnv)
+  assign(paste0("fit_glmmTMB_af_", exp_var), fit_glmmTMB_af, envir = .GlobalEnv)
   # Rótulo apenas para a exposição atual
   rotulo_atual <- setNames(list(as.character(rotulos[exp_var])), exp_var)
   # Tabela de regressão
-  fit %>%
+  fit_glmmTMB_af %>%
     tbl_regression(
       exponentiate = TRUE,
       include = all_of(exp_var),
@@ -1442,8 +1518,8 @@ modelos <- function(exp_var) {
     remove_row_type(type = "header") 
 }
 
-# Tabela final
-tabela_final <- map(exposicoes, modelos) %>%
+# Tabela
+tabela_glmmTMB_af <- map(exposicoes, modelos) %>%
   tbl_stack() %>%
   modify_header(
     label = "**Neighborhood indicators**",
@@ -1454,14 +1530,14 @@ tabela_final <- map(exposicoes, modelos) %>%
     c(estimate, conf.low, conf.high, p.value) ~ "**Global physical activity**"
   ) %>%
   modify_footnote(
-    label ~ "Each row represents a separate multilevel model with a random intercept for census tract, adjusted for sex, age, race/color, and education."
+    label ~ "Each row represents a separate model with a random intercept for census tract, adjusted for sex, age, race/color, and education."
   ) %>%
   modify_footnote(
     c(estimate) ~ "OR = Odds Ratio",
     abbreviation = TRUE
   )
 
-tabela_final
+tabela_glmmTMB_af
 #
 #
 #

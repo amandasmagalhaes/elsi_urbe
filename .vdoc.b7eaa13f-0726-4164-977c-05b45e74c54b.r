@@ -1,26 +1,26 @@
----
-title: "Análises ELSI-Urbe"
-author: "Amanda Magalhães e Amanda Andrade"
-date: today
-lang: pt-BR
-format:
-  html:
-    theme: cosmo
-    toc: true
-    toc-location: left
-    number-sections: true
-    code-fold: true
-execute:
-  freeze: auto
----
-
-
-
-# Introdução
-Este documento detalha as análises do ELSI-Urbe utilizando dados da segunda onda do ELSI-Brasil (2019-21) e da auditoria virtual.
-
-
-```{r}
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
 #| label: Pacotes
 #| code-summary: Pacotes
 #| warning: false
@@ -28,47 +28,47 @@ Este documento detalha as análises do ELSI-Urbe utilizando dados da segunda ond
 
 library(pacman)
 p_load(tidyverse, haven, here, survey, srvyr, gtsummary, kableExtra, glmmTMB)
-```
-
-```{r}
+#
+#
+#
 #| label: Separadores
 #| code-summary: Separadores
 #| warning: false
 #| message: false
 
 theme_gtsummary_language("en", decimal.mark = ",", big.mark = ".")
-```
-
-```{r}
+#
+#
+#
 #| label: Knitr
 #| code-summary: Knitr
 
 knitr::opts_chunk$set(fig.align = "center", out.width = "100%")
-```
-
-```{r}
+#
+#
+#
 #| label: PSU
 #| code-summary: PSU
 
 options(survey.lonely.psu = "adjust")
-```
-
-```{r}
+#
+#
+#
 #| label: Banco de dados
 #| code-summary: Banco de dados
 
 df <- read_dta(here("elsi_brasil_auditoria_virtual.dta"))
-```
-
-
-
-# Descritivas
-Análises considerando somente a área urbana e comparando as características de moradores em cidades incluídas ou não na auditoria virtual.
-
-
-## Sexo
-
-```{r}
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
 #| label: Tabela sexo
 #| code-summary: Tabela
 
@@ -92,9 +92,9 @@ df %>%
   modify_spanning_header(
     all_stat_cols(stat_0 = FALSE) ~ "**Auditoria virtual**"
   )
-```
-
-```{r}
+#
+#
+#
 #| label: Tabela sexo com desenho amostral
 #| code-summary: Tabela com desenho amostral
 
@@ -123,12 +123,12 @@ df %>%
     all_stat_cols(stat_0 = FALSE) ~ "**Auditoria virtual**"
   ) %>%
   modify_footnote(all_stat_cols() ~ NA)
-```
-
-
-## Idade
-
-```{r}
+#
+#
+#
+#
+#
+#
 #| label: Histograma idade
 #| code-summary: Histograma
 
@@ -148,9 +148,9 @@ df %>%
     fill = "Auditoria virtual"
   ) +
   theme(strip.text = element_blank())
-```
-
-```{r}
+#
+#
+#
 #| label: Teste de normalidade idade
 #| code-summary: Teste de normalidade (Shapiro-Wilk)
 
@@ -177,9 +177,9 @@ df %>%
     font_size = 24
   ) %>%
   row_spec(0, bold = TRUE, align = "c")
-```
-
-```{r}
+#
+#
+#
 #| label: Tabela idade
 #| code-summary: Tabela
 
@@ -205,9 +205,9 @@ df %>%
   modify_spanning_header(
     all_stat_cols(stat_0 = FALSE) ~ "**Auditoria virtual**"
   )
-```
-
-```{r}
+#
+#
+#
 #| label: Tabela idade com desenho amostral
 #| code-summary: Tabela com desenho amostral
 
@@ -236,9 +236,9 @@ df %>%
   modify_spanning_header(
     all_stat_cols(stat_0 = FALSE) ~ "**Auditoria virtual**"
   )
-```
-
-```{r}
+#
+#
+#
 #| label: Tabela faixa etária
 #| code-summary: Tabela
 
@@ -264,9 +264,9 @@ df %>%
   modify_spanning_header(
     all_stat_cols(stat_0 = FALSE) ~ "**Auditoria virtual**"
   )
-```
-
-```{r}
+#
+#
+#
 #| label: Tabela faixa etária com desenho amostral
 #| code-summary: Tabela com desenho amostral
 
@@ -297,12 +297,12 @@ df %>%
     all_stat_cols(stat_0 = FALSE) ~ "**Auditoria virtual**"
   ) %>%
   modify_footnote(all_stat_cols() ~ NA)
-```
-
-
-## Cor/raça
-
-```{r}
+#
+#
+#
+#
+#
+#
 #| label: Tabela cor/raça
 #| code-summary: Tabela
 
@@ -335,9 +335,9 @@ df %>%
   modify_footnote(
     label ~ paste0("Dados ausentes: ", n_miss_cor_raca)
   )
-```
-
-```{r}
+#
+#
+#
 #| label: Tabela cor/raça com desenho amostral
 #| code-summary: Tabela com desenho amostral
 
@@ -370,12 +370,12 @@ df %>%
     label ~ paste0("Dados ausentes: ", n_miss_cor_raca),
     all_stat_cols() ~ NA
   )
-```
-
-
-## Escolaridade
-
-```{r}
+#
+#
+#
+#
+#
+#
 #| label: Tabela escolaridade
 #| code-summary: Tabela
 
@@ -410,9 +410,9 @@ df %>%
   modify_footnote(
     label ~ paste0("Dados ausentes: ", n_miss_escolaridade)
   )
-```
-
-```{r}
+#
+#
+#
 #| label: Tabela escolaridade com desenho amostral
 #| code-summary: Tabela com desenho amostral
 
@@ -452,12 +452,12 @@ df %>%
     label ~ paste0("Dados ausentes: ", n_miss_escolaridade),
     all_stat_cols() ~ NA
   )
-```
-
-
-## Estado civil
-
-```{r}
+#
+#
+#
+#
+#
+#
 #| label: Tabela estado civil
 #| code-summary: Tabela
 
@@ -481,9 +481,9 @@ df %>%
   modify_spanning_header(
     all_stat_cols(stat_0 = FALSE) ~ "**Auditoria virtual**"
   )
-```
-
-```{r}
+#
+#
+#
 #| label: Tabela estado civil com desenho amostral
 #| code-summary: Tabela com desenho amostral
 
@@ -512,12 +512,12 @@ df %>%
     all_stat_cols(stat_0 = FALSE) ~ "**Auditoria virtual**"
   ) %>%
   modify_footnote(all_stat_cols() ~ NA)
-```
-
-
-## Número de Doenças Crônicas Não Transmissíveis (DCNT)
-
-```{r}
+#
+#
+#
+#
+#
+#
 #| label: Tabela DCNT
 #| code-summary: Tabela
 
@@ -550,9 +550,9 @@ df %>%
   modify_footnote(
     label ~ paste0("Dados ausentes: ", n_miss_dcnt)
   )
-```
-
-```{r}
+#
+#
+#
 #| label: Tabela DCNT com desenho amostral
 #| code-summary: Tabela com desenho amostral
 
@@ -585,12 +585,12 @@ df %>%
     label ~ paste0("Dados ausentes: ", n_miss_dcnt),
     all_stat_cols() ~ NA
   )
-```
-
-
-## Consulta médica nos últimos 12 meses
-
-```{r}
+#
+#
+#
+#
+#
+#
 #| label: Tabela consultas
 #| code-summary: Tabela
 
@@ -623,9 +623,9 @@ df %>%
   modify_footnote(
     label ~ paste0("Dados ausentes: ", n_miss_consultas)
   )
-```
-
-```{r}
+#
+#
+#
 #| label: Tabela consultas com desenho amostral
 #| code-summary: Tabela com desenho amostral
 
@@ -663,12 +663,12 @@ df %>%
     label ~ paste0("Dados ausentes: ", n_miss_consultas),
     all_stat_cols() ~ NA
   )
-```
-
-
-## Consumo regular de frutas e hortaliças
-
-```{r}
+#
+#
+#
+#
+#
+#
 #| label: Tabela frutas e hortaliças
 #| code-summary: Tabela
 
@@ -703,9 +703,9 @@ df %>%
   modify_footnote(
     label ~ paste0("Dados ausentes: ", n_miss_regularFH)
   )
-```
-
-```{r}
+#
+#
+#
 #| label: Tabela frutas e hortaliças com desenho amostral
 #| code-summary: Tabela com desenho amostral
 
@@ -740,12 +740,12 @@ df %>%
     label ~ paste0("Dados ausentes: ", n_miss_regularFH),
     all_stat_cols() ~ NA
   )
-```
-
-
-## Renda mensal domiciliar per capita
-
-```{r}
+#
+#
+#
+#
+#
+#
 #| label: Histograma renda
 #| code-summary: Histograma
 #| warning: false
@@ -767,9 +767,9 @@ df %>%
     fill = "Auditoria virtual"
   ) +
   theme(strip.text = element_blank())
-```
-
-```{r}
+#
+#
+#
 #| label: Teste de normalidade renda
 #| code-summary: Teste de normalidade (Shapiro-Wilk)
 
@@ -796,9 +796,9 @@ df %>%
     font_size = 24
   ) %>%
   row_spec(0, bold = TRUE, align = "c")
-```
-
-```{r}
+#
+#
+#
 #| label: Tabela renda
 #| code-summary: Tabela
 
@@ -833,9 +833,9 @@ df %>%
   modify_footnote(
     label ~ paste0("Dados ausentes: ", n_miss_renda)
   )
-```
-
-```{r}
+#
+#
+#
 #| label: Tabela renda com desenho amostral
 #| code-summary: Tabela com desenho amostral
 
@@ -873,9 +873,9 @@ df %>%
   modify_footnote(
     label ~ paste0("Dados ausentes: ", n_miss_renda)
   )
-```
-
-```{r}
+#
+#
+#
 #| label: Tabela renda (tercis)
 #| code-summary: Tabela
 
@@ -910,9 +910,9 @@ df %>%
   modify_footnote(
     label ~ paste0("Dados ausentes: ", n_miss_renda2)
   )
-```
-
-```{r}
+#
+#
+#
 #| label: Tabela renda (tercis) com desenho amostral
 #| code-summary: Tabela com desenho amostral
 
@@ -947,12 +947,12 @@ df %>%
     label ~ paste0("Dados ausentes: ", n_miss_renda),
     all_stat_cols() ~ NA
   )
-```
-
-
-## Programa público de estímulo à prática de atividade física (AF)
-
-```{r}
+#
+#
+#
+#
+#
+#
 #| label: Tabela programa AF
 #| code-summary: Tabela
 
@@ -987,9 +987,9 @@ df %>%
   modify_footnote(
     label ~ paste0("Dados ausentes: ", n_miss_programa)
   )
-```
-
-```{r}
+#
+#
+#
 #| label: Tabela programa AF com desenho amostral
 #| code-summary: Tabela com desenho amostral
 
@@ -1024,12 +1024,12 @@ df %>%
     label ~ paste0("Dados ausentes: ", n_miss_programa),
     all_stat_cols() ~ NA
   )
-```
-
-
-## Região
-
-```{r}
+#
+#
+#
+#
+#
+#
 #| label: Tabela região
 #| code-summary: Tabela
 
@@ -1057,9 +1057,9 @@ df %>%
   modify_spanning_header(
     all_stat_cols(stat_0 = FALSE) ~ "**Auditoria virtual**"
   )
-```
-
-```{r}
+#
+#
+#
 #| label: Tabela região com desenho amostral
 #| code-summary: Tabela com desenho amostral
 
@@ -1092,12 +1092,12 @@ df %>%
     all_stat_cols(stat_0 = FALSE) ~ "**Auditoria virtual**"
   ) %>%
   modify_footnote(all_stat_cols() ~ NA)
-```
-
-
-## Atividade física (AF) global
-
-```{r}
+#
+#
+#
+#
+#
+#
 #| label: Tabela AF global
 #| code-summary: Tabela
 
@@ -1132,9 +1132,9 @@ df %>%
   modify_footnote(
     label ~ paste0("Dados ausentes: ", n_miss_AF_global)
   )
-```
-
-```{r}
+#
+#
+#
 #| label: Tabela AF global com desenho amostral
 #| code-summary: Tabela com desenho amostral
 
@@ -1169,12 +1169,12 @@ df %>%
     label ~ paste0("Dados ausentes: ", n_miss_AF_global),
     all_stat_cols() ~ NA
   )
-```
-
-
-## Caminhada
-
-```{r}
+#
+#
+#
+#
+#
+#
 #| label: Tabela caminhada
 #| code-summary: Tabela
 
@@ -1209,9 +1209,9 @@ df %>%
   modify_footnote(
     label ~ paste0("Dados ausentes: ", n_miss_caminhada_cat)
   )
-```
-
-```{r}
+#
+#
+#
 #| label: Tabela caminhada com desenho amostral
 #| code-summary: Tabela com desenho amostral
 
@@ -1246,12 +1246,12 @@ df %>%
     label ~ paste0("Dados ausentes: ", n_miss_caminhada_cat),
     all_stat_cols() ~ NA
   )
-```
-
-
-## Sintomas depressivos
-
-```{r}
+#
+#
+#
+#
+#
+#
 #| label: Tabela sintomas depressivos
 #| code-summary: Tabela
 
@@ -1284,10 +1284,10 @@ df %>%
   modify_footnote(
     label ~ paste0("Dados ausentes: ", n_miss_sint_dep)
   )
-```
-
-
-```{r}
+#
+#
+#
+#
 #| label: Tabela sintomas depressivos com desenho amostral
 #| code-summary: Tabela com desenho amostral
 
@@ -1320,12 +1320,12 @@ df %>%
     label ~ paste0("Dados ausentes: ", n_miss_sint_dep),
     all_stat_cols() ~ NA
   )
-```
-
-
-## Autoavaliação de saúde
-
-```{r}
+#
+#
+#
+#
+#
+#
 #| label: Tabela autoavaliação de saúde
 #| code-summary: Tabela
 
@@ -1358,10 +1358,10 @@ df %>%
   modify_footnote(
     label ~ paste0("Dados ausentes: ", n_miss_aas)
   )
-```
-
-
-```{r}
+#
+#
+#
+#
 #| label: Tabela autoavaliação de saúde com desenho amostral
 #| code-summary: Tabela com desenho amostral
 
@@ -1394,17 +1394,17 @@ df %>%
     label ~ paste0("Dados ausentes: ", n_miss_aas),
     all_stat_cols() ~ NA
   )
-```
-
-
-
-# Desfechos e indicadores compostos
-Análises considerando somente a área urbana e realizadas por meio de modelos de regressão logística com ajuste para o desenho amostral complexo.
-
-
-## AF global
-
-```{r}
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
+#
 #| label: Modelos multinivel AF global
 #| code-summary: "Regressão logística com efeito aleatório para setor"
 #| warning: false
@@ -1475,9 +1475,9 @@ tabela_glmmTMB_af <- map(exposicoes, modelos) %>%
   )
 
 tabela_glmmTMB_af
-```
-
-```{r}
+#
+#
+#
 #| label: Modelos AF global com desenho amostral 
 #| code-summary: "Regressão logística com desenho amostral complexo"
 
@@ -1538,12 +1538,12 @@ tabela_glm_af <- map(exposicoes, modelos) %>%
   )
 
 tabela_glm_af
-```
-
-
-## Caminhada
-
-```{r}
+#
+#
+#
+#
+#
+#
 #| label: Modelos multinivel caminhada
 #| code-summary: "Regressão logística com efeito aleatório para setor"
 #| warning: false
@@ -1603,7 +1603,7 @@ tabela_glmmTMB_cam <- map(exposicoes, modelos) %>%
     conf.low = "**95% CI**"
   ) %>%
   modify_spanning_header(
-    c(estimate, conf.low, conf.high, p.value) ~ "**Walking**"
+    c(estimate, conf.low, conf.high, p.value) ~ "**Walking (categorical)**"
   ) %>%
   modify_footnote(
     label ~ "Each row represents a separate model with a random intercept for census tract, adjusted for sex, age, race/color, and education."
@@ -1614,10 +1614,11 @@ tabela_glmmTMB_cam <- map(exposicoes, modelos) %>%
   )
 
 tabela_glmmTMB_cam
-```
-
-```{r}
-#| label: Modelos caminhada com desenho amostral
+#
+#
+#
+#
+#| label: Modelos com desenho amostral caminhada
 #| code-summary: "Regressão logística com desenho amostral complexo"
 
 # Desenho amostral
@@ -1643,16 +1644,20 @@ ajustes <- c("sexo", "idade", "cor_raca", "escolaridade")
 modelos <- function(exp_var) {
   # Fórmula dinâmica
   form <- as.formula(paste("caminhada_cat ~", exp_var, "+", paste(ajustes, collapse = " + ")))
+  
   # Modelo
   fit_glm_cam <- svyglm(
     formula = form,
     design = design_modelo,
     family = quasibinomial(link = "logit")
   )
+  
   # Salva o modelo
   assign(paste0("fit_glm_cam_", exp_var), fit_glm_cam, envir = .GlobalEnv)
+  
   # Rótulo apenas para a exposição atual
   rotulo_atual <- setNames(list(as.character(rotulos[exp_var])), exp_var)
+  
   # Tabela de regressão
   fit_glm_cam %>%
     tbl_regression(
@@ -1670,143 +1675,13 @@ tabela_glm_cam <- map(exposicoes, modelos) %>%
     label = "**Neighborhood indicators**"
   ) %>%
   modify_spanning_header(
-    c(estimate, conf.low, conf.high, p.value) ~ "**Walking**"
+    c(estimate, conf.low, conf.high, p.value) ~ "**Walking (categorical)**"
   ) %>%
   modify_footnote(
     label ~ "Each row represents a separate model adjusted for sex, age, race/color, and education."
   )
 
 tabela_glm_cam
-```
-
-
-## Sintomas depressivos
-
-```{r}
-#| label: Modelos multinivel sintomas depressivos
-#| code-summary: "Regressão logística com efeito aleatório para setor"
-#| warning: false
-#| message: false
-
-# Base de dados (sem survey design)
-dados <- df %>%
-  filter(zona == 1,
-         !is.na(sint_dep),
-         !is.na(identificador)) %>%
-  mutate(setor = factor(setor))
-
-# Variáveis e rótulos
-rotulos <- c(
-  dom_urbana1_escala = "Pathway accessibility",
-  dom_urbana2_escala = "Surface and continuity",
-  dom_transito1_escala = "Markings and controls",
-  dom_transito2_escala = "Speed and bus lane",
-  dom_desordem1_escala = "Absence of infrastructure and vegetation",
-  dom_desordem2_escala = "Absence of building and green spaces"
-)
-exposicoes <- names(rotulos)
-ajustes <- c("sexo", "idade", "cor_raca", "escolaridade")
-
-# Função para rodar e salvar os modelos
-modelos <- function(exp_var) {
-  form <- as.formula(paste("sint_dep ~", exp_var, "+", paste(ajustes, collapse = " + "),
-          "+ (1 | setor)"))
-  fit_glmmTMB_dep <- glmmTMB(
-    formula = form,
-    data = dados,
-    family = binomial(link = "logit")
-  )
-  assign(paste0("fit_glmmTMB_dep_", exp_var), fit_glmmTMB_dep, envir = .GlobalEnv)
-  rotulo_atual <- setNames(list(as.character(rotulos[exp_var])), exp_var)
-  fit_glmmTMB_dep %>%
-    tbl_regression(
-      exponentiate = TRUE,
-      include = all_of(exp_var),
-      pvalue_fun = ~style_pvalue(.x, digits = 3),
-      label = rotulo_atual
-    ) %>%
-    remove_row_type(type = "header")
-}
-
-# Tabela
-tabela_glmmTMB_dep <- map(exposicoes, modelos) %>%
-  tbl_stack() %>%
-  modify_header(
-    label = "**Neighborhood indicators**",
-    estimate = "**OR**",
-    conf.low = "**95% CI**"
-  ) %>%
-  modify_spanning_header(
-    c(estimate, conf.low, conf.high, p.value) ~ "**Depressive symptoms**"
-  ) %>%
-  modify_footnote(
-    label ~ "Each row represents a separate model with a random intercept for census tract, adjusted for sex, age, race/color, and education."
-  ) %>%
-  modify_footnote(
-    c(estimate) ~ "OR = Odds Ratio",
-    abbreviation = TRUE
-  )
-
-tabela_glmmTMB_dep
-```
-
-```{r}
-#| label: Modelos sintomas depressivos com desenho amostral
-#| code-summary: "Regressão logística com desenho amostral complexo"
-
-# Desenho amostral
-design_modelo <- df %>%
-  filter(zona == 1) %>%
-  filter(!is.na(sint_dep),
-         !is.na(identificador)) %>%
-  as_survey_design(ids = upa,
-                   strata = estrato,
-                   weights = peso_calibrado)
-
-# Variáveis e rótulos
-rotulos <- c(
-  dom_urbana1_escala = "Pathway accessibility",
-  dom_urbana2_escala = "Surface and continuity",
-  dom_transito1_escala = "Markings and controls",
-  dom_transito2_escala = "Speed and bus lane",
-  dom_desordem1_escala = "Absence of infrastructure and vegetation",
-  dom_desordem2_escala = "Absence of building and green spaces"
-)
-exposicoes <- names(rotulos)
-ajustes <- c("sexo", "idade", "cor_raca", "escolaridade")
-
-# Função para rodar e salvar os modelos
-modelos <- function(exp_var) {
-  form <- as.formula(
-    paste("sint_dep ~", exp_var, "+", paste(ajustes, collapse = " + ")))
-  fit_glm_dep <- svyglm(
-    formula = form,
-    design = design_modelo,
-    family = quasibinomial(link = "logit")
-  )
-  assign(paste0("fit_glm_dep_", exp_var), fit_glm_dep, envir = .GlobalEnv)
-  rotulo_atual <- setNames(list(as.character(rotulos[exp_var])), exp_var)
-  fit_glm_dep %>%
-    tbl_regression(
-      exponentiate = TRUE,
-      include = all_of(exp_var),
-      pvalue_fun = ~style_pvalue(.x, digits = 3),
-      label = rotulo_atual
-    )
-}
-
-# Tabela
-tabela_glm_dep <- map(exposicoes, modelos) %>%
-  tbl_stack() %>%
-  modify_header(
-    label = "**Neighborhood indicators**"
-  ) %>%
-  modify_spanning_header(
-    c(estimate, conf.low, conf.high, p.value) ~ "**Depressive symptoms**"
-  ) %>%
-  modify_footnote(
-    label ~ "Each row represents a separate model adjusted for sex, age, race/color, and education."
-  )
-
-tabela_glm_dep
-```
+#
+#
+#
