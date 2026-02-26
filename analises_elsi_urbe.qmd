@@ -594,6 +594,11 @@ df %>%
 #| label: Tabela consultas
 #| code-summary: Tabela
 
+n_miss_consultas <- df %>% 
+  filter(zona == 1) %>% 
+  summarise(n = sum(is.na(consultas))) %>% 
+  pull(n)
+
 df %>%
   filter(zona == 1) %>%
   mutate(
@@ -603,7 +608,8 @@ df %>%
   select(consultas, cidade_auditoria) %>%
   tbl_summary(
     by = cidade_auditoria,
-    label = list(consultas ~ "Consulta médica (12 meses)")
+    label = list(consultas ~ "Consulta médica (12 meses)"),
+    missing = "no"
   ) %>%
   add_overall(last = TRUE) %>%
   add_p(pvalue_fun = ~style_pvalue(.x, digits = 3)) %>%
@@ -613,6 +619,9 @@ df %>%
   ) %>%
   modify_spanning_header(
     all_stat_cols(stat_0 = FALSE) ~ "**Auditoria virtual**"
+  ) %>%
+  modify_footnote(
+    label ~ paste0("Dados ausentes: ", n_miss_consultas)
   )
 ```
 
@@ -620,18 +629,24 @@ df %>%
 #| label: Tabela consultas com peso
 #| code-summary: Tabela com peso
 
+n_miss_consultas <- df %>% 
+  filter(zona == 1) %>% 
+  summarise(n = sum(is.na(consultas))) %>% 
+  pull(n)
+
 df %>%
   filter(zona == 1) %>%
   mutate(
     consultas = factor(consultas, levels = c(0, 1, 2), labels = c("Nenhuma", "1 a 2", "≥3")),
     cidade_auditoria = factor(cidade_auditoria, levels = c(0, 1), labels = c("Não", "Sim"))
-) %>%
+  ) %>%
   as_survey_design(ids = upa, strata = estrato, weights = peso_calibrado) %>%
   tbl_svysummary(
     by = cidade_auditoria,
     include = c(consultas, cidade_auditoria),
     label = list(consultas ~ "Consulta médica (12 meses)"),
-    statistic = list(all_categorical() ~ "{p}%")
+    statistic = list(all_categorical() ~ "{p}%"),
+    missing = "no"
   ) %>%
   add_overall(last = TRUE) %>%
   add_p(pvalue_fun = ~style_pvalue(.x, digits = 3)) %>%
@@ -644,7 +659,10 @@ df %>%
   modify_spanning_header(
     all_stat_cols(stat_0 = FALSE) ~ "**Auditoria virtual**"
   ) %>%
-  modify_footnote(all_stat_cols() ~ NA)
+  modify_footnote(
+    label ~ paste0("Dados ausentes: ", n_miss_consultas),
+    all_stat_cols() ~ NA
+  )
 ```
 
 
@@ -1300,4 +1318,75 @@ df %>%
     label ~ paste0("Dados ausentes: ", n_miss_aas),
     all_stat_cols() ~ NA
   )
+```
+
+
+
+# Desfechos e indicadores compostos
+Análises considerando somente a área urbana e realizadas por meio de modelos de regressão logística com ajuste para o desenho amostral complexo.
+
+
+## AF global
+
+```{r}
+#| label: Modelos
+#| code-summary: "Regressão Logística com peso"
+
+# Desenho amostral
+design_modelo <- df %>%
+  filter(zona == 1) %>%
+  filter(!is.na(AF_global), 
+         !is.na(identificador)) %>%
+  as_survey_design(ids = c(upa, setor), strata = estrato, weights = peso_calibrado)
+
+# Variáveis e rótulos
+rotulos <- c(
+  dom_urbana1_escala = "Pathway accessibility",
+  dom_urbana2_escala = "Surface and continuity",
+  dom_transito1_escala = "Markings and controls",
+  dom_transito2_escala = "Speed and bus lane",
+  dom_desordem1_escala = "Absence of infrastructure and vegetation",
+  dom_desordem2_escala = "Absence of building and green spaces"
+)
+exposicoes <- names(rotulos)
+ajustes <- c("sexo", "idade", "cor_raca", "escolaridade")
+
+# Função para rodar e salvar os modelos
+modelos <- function(exp_var) {
+  # Fórmula dinâmica
+  form <- as.formula(paste("AF_global ~", exp_var, "+", paste(ajustes, collapse = " + ")))
+  # Modelo svyglm
+  fit <- svyglm(
+    formula = form,
+    design = design_modelo,
+    family = quasibinomial(link = "logit")
+  )
+  # Salva o modelo, exemplo: fit_dom_urbana1_escala
+  assign(paste0("fit_", exp_var), fit, envir = .GlobalEnv)
+  # Rótulo apenas para a exposição atual
+  rotulo_atual <- setNames(list(as.character(rotulos[exp_var])), exp_var)
+  # Tabela de regressão
+  fit %>%
+    tbl_regression(
+      exponentiate = TRUE,
+      include = all_of(exp_var),
+      pvalue_fun = ~style_pvalue(.x, digits = 3),
+      label = rotulo_atual
+    )
+}
+
+# Tabela final
+tabela_final <- map(exposicoes, modelos) %>%
+  tbl_stack() %>%
+  modify_header(
+    label = "**Neighborhood indicators**"
+  ) %>%
+  modify_spanning_header(
+    c(estimate, conf.low, conf.high, p.value) ~ "**Global physical activity**"
+  ) %>%
+  modify_footnote(
+    label ~ "Each row represents a separate model adjusted for sex, age, race/color, and education."
+  )
+
+tabela_final
 ```
