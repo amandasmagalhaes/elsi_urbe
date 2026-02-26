@@ -1541,6 +1541,256 @@ tabela_glm_af
 ```
 
 
+## AF global estratificado
+
+```{r}
+#| label: Modelos multinivel AF global mulheres
+#| code-summary: "Regressão logística com efeito aleatório para setor - Mulheres"
+#| warning: false
+#| message: false
+
+dados <- df %>%
+  filter(zona == 1,
+         sexo == 0,
+         !is.na(AF_global),
+         !is.na(identificador)) %>%
+  mutate(setor = factor(setor))
+
+rotulos <- c(
+  dom_urbana1_escala = "Pathway accessibility",
+  dom_urbana2_escala = "Surface and continuity",
+  dom_transito1_escala = "Markings and controls",
+  dom_transito2_escala = "Speed and bus lane",
+  dom_desordem1_escala = "Absence of infrastructure and vegetation",
+  dom_desordem2_escala = "Absence of building and green spaces"
+)
+exposicoes <- names(rotulos)
+ajustes <- c("idade", "cor_raca", "escolaridade")
+
+modelos <- function(exp_var) {
+  form <- as.formula(paste("AF_global ~", exp_var, "+", paste(ajustes, collapse = " + "),
+                           "+ (1 | setor)"))
+  fit_glmmTMB_af <- glmmTMB(
+    formula = form,
+    data = dados,
+    family = binomial(link = "logit")
+  )
+  assign(paste0("fit_glmmTMB_af_mulher_", exp_var), fit_glmmTMB_af, envir = .GlobalEnv)
+  rotulo_atual <- setNames(list(as.character(rotulos[exp_var])), exp_var)
+  fit_glmmTMB_af %>%
+    tbl_regression(
+      exponentiate = TRUE,
+      include = all_of(exp_var),
+      pvalue_fun = ~style_pvalue(.x, digits = 3),
+      label = rotulo_atual
+    ) %>%
+    remove_row_type(type = "header")
+}
+
+tabela_glmmTMB_af_mulheres <- map(exposicoes, modelos) %>%
+  tbl_stack() %>%
+  modify_header(
+    label = "**Neighborhood indicators**",
+    estimate = "**OR**",
+    conf.low = "**95% CI**"
+  ) %>%
+  modify_spanning_header(
+    c(estimate, conf.low, conf.high, p.value) ~ "**Global physical activity: Women**"
+  ) %>%
+  modify_footnote(
+    label ~ "Each row represents a separate model with a random intercept for census tract, adjusted for age, race/color, and education."
+  ) %>%
+  modify_footnote(
+    c(estimate) ~ "OR = Odds Ratio",
+    abbreviation = TRUE
+  )
+
+tabela_glmmTMB_af_mulheres
+```
+
+```{r}
+#| label: Modelos multinivel AF global homens
+#| code-summary: "Regressão logística com efeito aleatório para setor - Homens"
+#| warning: false
+#| message: false
+
+dados <- df %>%
+  filter(zona == 1,
+         sexo == 1,
+         !is.na(AF_global),
+         !is.na(identificador)) %>%
+  mutate(setor = factor(setor))
+
+rotulos <- c(
+  dom_urbana1_escala = "Pathway accessibility",
+  dom_urbana2_escala = "Surface and continuity",
+  dom_transito1_escala = "Markings and controls",
+  dom_transito2_escala = "Speed and bus lane",
+  dom_desordem1_escala = "Absence of infrastructure and vegetation",
+  dom_desordem2_escala = "Absence of building and green spaces"
+)
+
+exposicoes <- names(rotulos)
+ajustes <- c("idade", "cor_raca", "escolaridade")
+
+modelos <- function(exp_var) {
+  form <- as.formula(paste("AF_global ~", exp_var, "+", paste(ajustes, collapse = " + "),
+                           "+ (1 | setor)"))
+  fit_glmmTMB_af <- glmmTMB(
+    formula = form,
+    data = dados,
+    family = binomial(link = "logit")
+  )
+  assign(paste0("fit_glmmTMB_af_homem_", exp_var), fit_glmmTMB_af, envir = .GlobalEnv)
+  rotulo_atual <- setNames(list(as.character(rotulos[exp_var])), exp_var)
+  fit_glmmTMB_af %>%
+    tbl_regression(
+      exponentiate = TRUE,
+      include = all_of(exp_var),
+      pvalue_fun = ~style_pvalue(.x, digits = 3),
+      label = rotulo_atual
+    ) %>%
+    remove_row_type(type = "header")
+}
+
+tabela_glmmTMB_af_homens <- map(exposicoes, modelos) %>%
+  tbl_stack() %>%
+  modify_header(
+    label = "**Neighborhood indicators**",
+    estimate = "**OR**",
+    conf.low = "**95% CI**"
+  ) %>%
+  modify_spanning_header(
+    c(estimate, conf.low, conf.high, p.value) ~ "**Global physical activity: Men**"
+  ) %>%
+  modify_footnote(
+    label ~ "Each row represents a separate model with a random intercept for census tract, adjusted for age, race/color, and education."
+  ) %>%
+  modify_footnote(
+    c(estimate) ~ "OR = Odds Ratio",
+    abbreviation = TRUE
+  )
+
+tabela_glmmTMB_af_homens
+```
+
+```{r}
+#| label: Modelos AF global mulheres com desenho amostral
+#| code-summary: "Regressão logística com desenho amostral complexo - Mulheres"
+
+design_modelo <- df %>%
+  filter(zona == 1,
+         sexo == 0,
+         !is.na(AF_global),
+         !is.na(identificador)) %>%
+  as_survey_design(ids = upa,
+                   strata = estrato,
+                   weights = peso_calibrado)
+
+rotulos <- c(
+  dom_urbana1_escala = "Pathway accessibility",
+  dom_urbana2_escala = "Surface and continuity",
+  dom_transito1_escala = "Markings and controls",
+  dom_transito2_escala = "Speed and bus lane",
+  dom_desordem1_escala = "Absence of infrastructure and vegetation",
+  dom_desordem2_escala = "Absence of building and green spaces"
+)
+
+exposicoes <- names(rotulos)
+ajustes <- c("idade", "cor_raca", "escolaridade")
+
+modelos <- function(exp_var) {
+  form <- as.formula(paste("AF_global ~", exp_var, "+", paste(ajustes, collapse = " + ")))
+  fit_glm_af <- svyglm(
+    formula = form,
+    design = design_modelo,
+    family = quasibinomial(link = "logit")
+  )
+  assign(paste0("fit_glm_af_mulher_", exp_var), fit_glm_af, envir = .GlobalEnv)
+  rotulo_atual <- setNames(list(as.character(rotulos[exp_var])), exp_var)
+  fit_glm_af %>%
+    tbl_regression(
+      exponentiate = TRUE,
+      include = all_of(exp_var),
+      pvalue_fun = ~style_pvalue(.x, digits = 3),
+      label = rotulo_atual
+    )
+}
+
+tabela_glm_af_mulheres <- map(exposicoes, modelos) %>%
+  tbl_stack() %>%
+  modify_header(
+    label = "**Neighborhood indicators**"
+  ) %>%
+  modify_spanning_header(
+    c(estimate, conf.low, conf.high, p.value) ~ "**Global physical activity: Women**"
+  ) %>%
+  modify_footnote(
+    label ~ "Each row represents a separate model adjusted for age, race/color, and education."
+  )
+
+tabela_glm_af_mulheres
+```
+
+```{r}
+#| label: Modelos AF global homens com desenho amostral
+#| code-summary: "Regressão logística com desenho amostral complexo - Homens"
+
+design_modelo <- df %>%
+  filter(zona == 1,
+         sexo == 1,
+         !is.na(AF_global),
+         !is.na(identificador)) %>%
+  as_survey_design(ids = upa,
+                   strata = estrato,
+                   weights = peso_calibrado)
+
+rotulos <- c(
+  dom_urbana1_escala = "Pathway accessibility",
+  dom_urbana2_escala = "Surface and continuity",
+  dom_transito1_escala = "Markings and controls",
+  dom_transito2_escala = "Speed and bus lane",
+  dom_desordem1_escala = "Absence of infrastructure and vegetation",
+  dom_desordem2_escala = "Absence of building and green spaces"
+)
+
+exposicoes <- names(rotulos)
+ajustes <- c("idade", "cor_raca", "escolaridade")
+
+modelos <- function(exp_var) {
+  form <- as.formula(paste("AF_global ~", exp_var, "+", paste(ajustes, collapse = " + ")))
+  fit_glm_af <- svyglm(
+    formula = form,
+    design = design_modelo,
+    family = quasibinomial(link = "logit")
+  )
+  assign(paste0("fit_glm_af_homem_", exp_var), fit_glm_af, envir = .GlobalEnv)
+  rotulo_atual <- setNames(list(as.character(rotulos[exp_var])), exp_var)
+  fit_glm_af %>%
+    tbl_regression(
+      exponentiate = TRUE,
+      include = all_of(exp_var),
+      pvalue_fun = ~style_pvalue(.x, digits = 3),
+      label = rotulo_atual
+    )
+}
+
+tabela_glm_af_homens <- map(exposicoes, modelos) %>%
+  tbl_stack() %>%
+  modify_header(
+    label = "**Neighborhood indicators**"
+  ) %>%
+  modify_spanning_header(
+    c(estimate, conf.low, conf.high, p.value) ~ "**Global physical activity: Men**"
+  ) %>%
+  modify_footnote(
+    label ~ "Each row represents a separate model adjusted for age, race/color, and education."
+  )
+
+tabela_glm_af_homens
+```
+
+
 ## Caminhada
 
 ```{r}
@@ -1809,4 +2059,136 @@ tabela_glm_dep <- map(exposicoes, modelos) %>%
   )
 
 tabela_glm_dep
+```
+
+
+## Autoavaliação de saúde
+
+```{r}
+#| label: Modelos multinivel autoavaliação de saúde
+#| code-summary: "Regressão logística com efeito aleatório para setor"
+#| warning: false
+#| message: false
+
+# Base de dados (sem survey design)
+dados <- df %>%
+  filter(zona == 1,
+         !is.na(aas),
+         !is.na(identificador)) %>%
+  mutate(setor = factor(setor))
+
+# Variáveis e rótulos
+rotulos <- c(
+  dom_urbana1_escala = "Pathway accessibility",
+  dom_urbana2_escala = "Surface and continuity",
+  dom_transito1_escala = "Markings and controls",
+  dom_transito2_escala = "Speed and bus lane",
+  dom_desordem1_escala = "Absence of infrastructure and vegetation",
+  dom_desordem2_escala = "Absence of building and green spaces"
+)
+exposicoes <- names(rotulos)
+ajustes <- c("sexo", "idade", "cor_raca", "escolaridade")
+
+# Função para rodar e salvar os modelos
+modelos <- function(exp_var) {
+  form <- as.formula(paste("aas ~", exp_var, "+", paste(ajustes, collapse = " + "),
+          "+ (1 | setor)"))
+  fit_glmmTMB_aas <- glmmTMB(
+    formula = form,
+    data = dados,
+    family = binomial(link = "logit")
+  )
+  assign(paste0("fit_glmmTMB_aas_", exp_var), fit_glmmTMB_aas, envir = .GlobalEnv)
+  rotulo_atual <- setNames(list(as.character(rotulos[exp_var])), exp_var)
+  fit_glmmTMB_aas %>%
+    tbl_regression(
+      exponentiate = TRUE,
+      include = all_of(exp_var),
+      pvalue_fun = ~style_pvalue(.x, digits = 3),
+      label = rotulo_atual
+    ) %>%
+    remove_row_type(type = "header")
+}
+
+# Tabela
+tabela_glmmTMB_aas <- map(exposicoes, modelos) %>%
+  tbl_stack() %>%
+  modify_header(
+    label = "**Neighborhood indicators**",
+    estimate = "**OR**",
+    conf.low = "**95% CI**"
+  ) %>%
+  modify_spanning_header(
+    c(estimate, conf.low, conf.high, p.value) ~ "**Self-rated health**"
+  ) %>%
+  modify_footnote(
+    label ~ "Each row represents a separate model with a random intercept for census tract, adjusted for sex, age, race/color, and education."
+  ) %>%
+  modify_footnote(
+    c(estimate) ~ "OR = Odds Ratio",
+    abbreviation = TRUE
+  )
+
+tabela_glmmTMB_aas
+```
+
+```{r}
+#| label: Modelos autoavaliação de saúde com desenho amostral
+#| code-summary: "Regressão logística com desenho amostral complexo"
+
+# Desenho amostral
+design_modelo <- df %>%
+  filter(zona == 1) %>%
+  filter(!is.na(aas),
+         !is.na(identificador)) %>%
+  as_survey_design(ids = upa,
+                   strata = estrato,
+                   weights = peso_calibrado)
+
+# Variáveis e rótulos
+rotulos <- c(
+  dom_urbana1_escala = "Pathway accessibility",
+  dom_urbana2_escala = "Surface and continuity",
+  dom_transito1_escala = "Markings and controls",
+  dom_transito2_escala = "Speed and bus lane",
+  dom_desordem1_escala = "Absence of infrastructure and vegetation",
+  dom_desordem2_escala = "Absence of building and green spaces"
+)
+exposicoes <- names(rotulos)
+ajustes <- c("sexo", "idade", "cor_raca", "escolaridade")
+
+# Função para rodar e salvar os modelos
+modelos <- function(exp_var) {
+  form <- as.formula(
+    paste("aas ~", exp_var, "+", paste(ajustes, collapse = " + ")))
+  fit_glm_aas <- svyglm(
+    formula = form,
+    design = design_modelo,
+    family = quasibinomial(link = "logit")
+  )
+  assign(paste0("fit_glm_aas_", exp_var), fit_glm_aas, envir = .GlobalEnv)
+  rotulo_atual <- setNames(list(as.character(rotulos[exp_var])), exp_var)
+  fit_glm_aas %>%
+    tbl_regression(
+      exponentiate = TRUE,
+      include = all_of(exp_var),
+      pvalue_fun = ~style_pvalue(.x, digits = 3),
+      label = rotulo_atual
+    )
+}
+
+# Tabela
+tabela_glm_aas <- map(exposicoes, modelos) %>%
+  tbl_stack() %>%
+  modify_header(
+    label = "**Neighborhood indicators**"
+  ) %>%
+  modify_spanning_header(
+    c(estimate, conf.low, conf.high, p.value) ~ "**Self-rated health**"
+  ) %>%
+  modify_footnote(
+    label ~ "Each row represents a separate model adjusted for sex, age, race/color, and education."
+  )
+
+tabela_glm_aas
 ```
