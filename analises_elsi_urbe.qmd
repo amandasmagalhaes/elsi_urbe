@@ -1286,7 +1286,6 @@ df %>%
   )
 ```
 
-
 ```{r}
 #| label: Tabela sintomas depressivos com desenho amostral
 #| code-summary: Tabela com desenho amostral
@@ -1541,11 +1540,11 @@ tabela_glm_af
 ```
 
 
-## AF global estratificado
+## AF global estratificada
 
 ```{r}
 #| label: Modelos multinivel AF global mulheres
-#| code-summary: "Regressão logística com efeito aleatório para setor - Mulheres"
+#| code-summary: "Regressão logística com efeito aleatório para setor"
 #| warning: false
 #| message: false
 
@@ -1610,7 +1609,7 @@ tabela_glmmTMB_af_mulheres
 
 ```{r}
 #| label: Modelos multinivel AF global homens
-#| code-summary: "Regressão logística com efeito aleatório para setor - Homens"
+#| code-summary: "Regressão logística com efeito aleatório para setor"
 #| warning: false
 #| message: false
 
@@ -1676,7 +1675,7 @@ tabela_glmmTMB_af_homens
 
 ```{r}
 #| label: Modelos AF global mulheres com desenho amostral
-#| code-summary: "Regressão logística com desenho amostral complexo - Mulheres"
+#| code-summary: "Regressão logística com desenho amostral complexo"
 
 design_modelo <- df %>%
   filter(zona == 1,
@@ -1734,7 +1733,7 @@ tabela_glm_af_mulheres
 
 ```{r}
 #| label: Modelos AF global homens com desenho amostral
-#| code-summary: "Regressão logística com desenho amostral complexo - Homens"
+#| code-summary: "Regressão logística com desenho amostral complexo"
 
 design_modelo <- df %>%
   filter(zona == 1,
@@ -2057,6 +2056,134 @@ tabela_glm_dep <- map(exposicoes, modelos) %>%
   modify_footnote(
     label ~ "Each row represents a separate model adjusted for sex, age, race/color, and education."
   )
+
+tabela_glm_dep
+```
+
+```{r}
+#| label: Modelos multinivel sintomas depressivos com mais ajustes
+#| code-summary: "Regressão logística com efeito aleatório para setor com mais ajustes"
+#| warning: false
+#| message: false
+
+# Base de dados (sem survey design)
+dados <- df %>%
+  filter(zona == 1,
+         !is.na(sint_dep),
+         !is.na(identificador)) %>%
+  mutate(setor = factor(setor))
+
+# Variáveis e rótulos
+rotulos <- c(
+  dom_urbana1_escala = "Pathway accessibility",
+  dom_urbana2_escala = "Surface and continuity",
+  dom_transito1_escala = "Markings and controls",
+  dom_transito2_escala = "Speed and bus lane",
+  dom_desordem1_escala = "Absence of infrastructure and vegetation",
+  dom_desordem2_escala = "Absence of building and green spaces"
+)
+exposicoes <- names(rotulos)
+ajustes <- c("sexo", "idade", "est_civil", "escolaridade", "cor_raca", "rendadompc2corr", "anos_municipio", "dcnt", "aas")
+
+# Função para rodar e salvar os modelos
+modelos <- function(exp_var) {
+  form <- as.formula(paste("sint_dep ~", exp_var, "+", paste(ajustes, collapse = " + "),
+          "+ (1 | setor)"))
+  fit_glmmTMB_dep <- glmmTMB(
+    formula = form,
+    data = dados,
+    family = binomial(link = "logit")
+  )
+  assign(paste0("fit_glmmTMB_dep_", exp_var), fit_glmmTMB_dep, envir = .GlobalEnv)
+  rotulo_atual <- setNames(list(as.character(rotulos[exp_var])), exp_var)
+  fit_glmmTMB_dep %>%
+    tbl_regression(
+      exponentiate = TRUE,
+      include = all_of(exp_var),
+      pvalue_fun = ~style_pvalue(.x, digits = 3),
+      label = rotulo_atual
+    ) %>%
+    remove_row_type(type = "header")
+}
+
+# Tabela
+tabela_glmmTMB_dep <- map(exposicoes, modelos) %>%
+  tbl_stack() %>%
+  modify_header(
+    label = "**Neighborhood indicators**",
+    estimate = "**OR**",
+    conf.low = "**95% CI**"
+  ) %>%
+  modify_spanning_header(
+    c(estimate, conf.low, conf.high, p.value) ~ "**Depressive symptoms**"
+  ) %>%
+  modify_footnote(
+    label ~ "Each row represents a separate model adjusted for sex, age, marital status, education, race/color, per capita household income (in tertiles), living alone, length of residence (in years), number of chronic diseases, and self-rated health."
+  ) %>%
+  modify_footnote(
+    c(estimate) ~ "OR = Odds Ratio",
+    abbreviation = TRUE
+  )
+
+tabela_glmmTMB_dep
+```
+
+```{r}
+#| label: Modelos sintomas depressivos com desenho amostral com mais ajustes
+#| code-summary: "Regressão logística com desenho amostral complexo com mais ajustes"
+
+# Desenho amostral
+design_modelo <- df %>%
+  filter(zona == 1) %>%
+  filter(!is.na(sint_dep),
+         !is.na(identificador)) %>%
+  as_survey_design(ids = upa,
+                   strata = estrato,
+                   weights = peso_calibrado)
+
+# Variáveis e rótulos
+rotulos <- c(
+  dom_urbana1_escala = "Pathway accessibility",
+  dom_urbana2_escala = "Surface and continuity",
+  dom_transito1_escala = "Markings and controls",
+  dom_transito2_escala = "Speed and bus lane",
+  dom_desordem1_escala = "Absence of infrastructure and vegetation",
+  dom_desordem2_escala = "Absence of building and green spaces"
+)
+exposicoes <- names(rotulos)
+ajustes <- c("sexo", "idade", "est_civil", "escolaridade", "cor_raca", "rendadompc2corr", "anos_municipio", "dcnt", "aas")
+
+# Função para rodar e salvar os modelos
+modelos <- function(exp_var) {
+  form <- as.formula(
+    paste("sint_dep ~", exp_var, "+", paste(ajustes, collapse = " + ")))
+  fit_glm_dep <- svyglm(
+    formula = form,
+    design = design_modelo,
+    family = quasibinomial(link = "logit")
+  )
+  assign(paste0("fit_glm_dep_", exp_var), fit_glm_dep, envir = .GlobalEnv)
+  rotulo_atual <- setNames(list(as.character(rotulos[exp_var])), exp_var)
+  fit_glm_dep %>%
+    tbl_regression(
+      exponentiate = TRUE,
+      include = all_of(exp_var),
+      pvalue_fun = ~style_pvalue(.x, digits = 3),
+      label = rotulo_atual
+    )
+}
+
+# Tabela
+tabela_glm_dep <- map(exposicoes, modelos) %>%
+  tbl_stack() %>%
+  modify_header(
+    label = "**Neighborhood indicators**"
+  ) %>%
+  modify_spanning_header(
+    c(estimate, conf.low, conf.high, p.value) ~ "**Depressive symptoms**"
+  ) %>%
+  modify_footnote(
+    label ~ "Each row represents a separate model adjusted for sex, age, marital status, education, race/color, per capita household income (in tertiles), living alone, length of residence (in years), number of chronic diseases, and self-rated health.")
 
 tabela_glm_dep
 ```
