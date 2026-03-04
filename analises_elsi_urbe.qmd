@@ -2041,3 +2041,219 @@ tabela_glmmTMB_aas <- map(exposicoes, modelos) %>%
 
 tabela_glmmTMB_aas
 ```
+
+
+## Agradável fazer exercicios
+
+```{r}
+#| label: Modelos multinivel agradável fazer exercicios
+#| code-summary: "Regressão logística com efeito aleatório para setor"
+#| warning: false
+#| message: false
+
+# Base de dados (sem survey design)
+dados <- df %>%
+  filter(zona == 1,
+         !is.na(agradavel_exercicios),
+         !is.na(identificador)) %>%
+  mutate(setor = factor(setor), peso_norm = peso_calibrado / mean(peso_calibrado))
+
+# Variáveis e rótulos
+rotulos <- c(
+  dom_urbana1_escala = "Pathway accessibility",
+  dom_urbana2_escala = "Surface and continuity",
+  dom_transito1_escala = "Markings and controls",
+  dom_transito2_escala = "Speed and bus lane",
+  dom_desordem1_escala = "Absence of infrastructure and vegetation",
+  dom_desordem2_escala = "Absence of building and green spaces"
+)
+exposicoes <- names(rotulos)
+ajustes <- c("sexo", "idade", "cor_raca", "escolaridade")
+
+# Função para rodar e salvar os modelos
+modelos <- function(exp_var) {
+  form <- as.formula(paste("agradavel_exercicios ~", exp_var, "+", paste(ajustes, collapse = " + "),
+          "+ (1 | setor)"))
+  fit_glmmTMB_agradavel_exercicios <- glmmTMB(
+    formula = form,
+    data = dados,
+    family = binomial(link = "logit"),
+    weights = peso_norm
+  )
+  assign(paste0("fit_glmmTMB_agradavel_exercicios_", exp_var), fit_glmmTMB_agradavel_exercicios, envir = .GlobalEnv)
+  rotulo_atual <- setNames(list(as.character(rotulos[exp_var])), exp_var)
+  fit_glmmTMB_agradavel_exercicios %>%
+    tbl_regression(
+      exponentiate = TRUE,
+      include = all_of(exp_var),
+      pvalue_fun = ~style_pvalue(.x, digits = 3),
+      label = rotulo_atual
+    ) %>%
+    remove_row_type(type = "header")
+}
+
+# Tabela
+tabela_glmmTMB_agradavel_exercicios <- map(exposicoes, modelos) %>%
+  tbl_stack() %>%
+  modify_header(
+    label = "**Neighborhood indicators**",
+    estimate = "**OR**",
+    conf.low = "**95% CI**"
+  ) %>%
+  modify_spanning_header(
+    c(estimate, conf.low, conf.high, p.value) ~ "**Pleasant for physical activity**"
+  ) %>%
+  modify_footnote(
+    label ~ "Each row represents a separate model with a random intercept for census tract, adjusted for sex, age, race/color, and education."
+  ) %>%
+  modify_footnote(
+    c(estimate) ~ "OR = Odds Ratio",
+    abbreviation = TRUE
+  )
+
+tabela_glmmTMB_agradavel_exercicios
+```
+
+
+## Medo de cair por defeitos nos passeios
+
+```{r}
+#| label: Modelos multinivel medo de cair
+#| code-summary: "Regressão logística com efeito aleatório para setor"
+#| warning: false
+#| message: false
+
+# Base de dados (sem survey design)
+dados <- df %>%
+  filter(zona == 1,
+         !is.na(cair_passeios),
+         !is.na(identificador)) %>%
+  mutate(setor = factor(setor), peso_norm = peso_calibrado / mean(peso_calibrado))
+
+# Variáveis e rótulos
+rotulos <- c(
+  dom_urbana1_escala = "Pathway accessibility",
+  dom_urbana2_escala = "Surface and continuity",
+  dom_transito1_escala = "Markings and controls",
+  dom_transito2_escala = "Speed and bus lane",
+  dom_desordem1_escala = "Absence of infrastructure and vegetation",
+  dom_desordem2_escala = "Absence of building and green spaces"
+)
+exposicoes <- names(rotulos)
+ajustes <- c("sexo", "idade", "cor_raca", "escolaridade")
+
+# Função para rodar e salvar os modelos
+modelos <- function(exp_var) {
+  form <- as.formula(paste("cair_passeios ~", exp_var, "+", paste(ajustes, collapse = " + "),
+          "+ (1 | setor)"))
+  fit_glmmTMB_cair_passeios <- glmmTMB(
+    formula = form,
+    data = dados,
+    family = binomial(link = "logit"),
+    weights = peso_norm
+  )
+  assign(paste0("fit_glmmTMB_cair_passeios_", exp_var), fit_glmmTMB_cair_passeios, envir = .GlobalEnv)
+  rotulo_atual <- setNames(list(as.character(rotulos[exp_var])), exp_var)
+  fit_glmmTMB_cair_passeios %>%
+    tbl_regression(
+      exponentiate = TRUE,
+      include = all_of(exp_var),
+      pvalue_fun = ~style_pvalue(.x, digits = 3),
+      label = rotulo_atual
+    ) %>%
+    remove_row_type(type = "header")
+}
+
+# Tabela
+tabela_glmmTMB_cair_passeios <- map(exposicoes, modelos) %>%
+  tbl_stack() %>%
+  modify_header(
+    label = "**Neighborhood indicators**",
+    estimate = "**OR**",
+    conf.low = "**95% CI**"
+  ) %>%
+  modify_spanning_header(
+    c(estimate, conf.low, conf.high, p.value) ~ "**Fear of falling due to sidewalk defects**"
+  ) %>%
+  modify_footnote(
+    label ~ "Each row represents a separate model with a random intercept for census tract, adjusted for sex, age, race/color, and education."
+  ) %>%
+  modify_footnote(
+    c(estimate) ~ "OR = Odds Ratio",
+    abbreviation = TRUE
+  )
+
+tabela_glmmTMB_cair_passeios
+```
+
+
+## Preocupação com dificuldade em atravessar a rua
+
+```{r}
+#| label: Modelos multinivel dificuldade em atravessar a rua
+#| code-summary: "Regressão logística com efeito aleatório para setor"
+#| warning: false
+#| message: false
+
+# Base de dados (sem survey design)
+dados <- df %>%
+  filter(zona == 1,
+         !is.na(atravessar_rua),
+         !is.na(identificador)) %>%
+  mutate(setor = factor(setor), peso_norm = peso_calibrado / mean(peso_calibrado))
+
+# Variáveis e rótulos
+rotulos <- c(
+  dom_urbana1_escala = "Pathway accessibility",
+  dom_urbana2_escala = "Surface and continuity",
+  dom_transito1_escala = "Markings and controls",
+  dom_transito2_escala = "Speed and bus lane",
+  dom_desordem1_escala = "Absence of infrastructure and vegetation",
+  dom_desordem2_escala = "Absence of building and green spaces"
+)
+exposicoes <- names(rotulos)
+ajustes <- c("sexo", "idade", "cor_raca", "escolaridade")
+
+# Função para rodar e salvar os modelos
+modelos <- function(exp_var) {
+  form <- as.formula(paste("atravessar_rua ~", exp_var, "+", paste(ajustes, collapse = " + "),
+          "+ (1 | setor)"))
+  fit_glmmTMB_atravessar_rua <- glmmTMB(
+    formula = form,
+    data = dados,
+    family = binomial(link = "logit"),
+    weights = peso_norm
+  )
+  assign(paste0("fit_glmmTMB_atravessar_rua_", exp_var), fit_glmmTMB_atravessar_rua, envir = .GlobalEnv)
+  rotulo_atual <- setNames(list(as.character(rotulos[exp_var])), exp_var)
+  fit_glmmTMB_atravessar_rua %>%
+    tbl_regression(
+      exponentiate = TRUE,
+      include = all_of(exp_var),
+      pvalue_fun = ~style_pvalue(.x, digits = 3),
+      label = rotulo_atual
+    ) %>%
+    remove_row_type(type = "header")
+}
+
+# Tabela
+tabela_glmmTMB_atravessar_rua <- map(exposicoes, modelos) %>%
+  tbl_stack() %>%
+  modify_header(
+    label = "**Neighborhood indicators**",
+    estimate = "**OR**",
+    conf.low = "**95% CI**"
+  ) %>%
+  modify_spanning_header(
+    c(estimate, conf.low, conf.high, p.value) ~ "**Fear of crossing the street**"
+  ) %>%
+  modify_footnote(
+    label ~ "Each row represents a separate model with a random intercept for census tract, adjusted for sex, age, race/color, and education."
+  ) %>%
+  modify_footnote(
+    c(estimate) ~ "OR = Odds Ratio",
+    abbreviation = TRUE
+  )
+
+tabela_glmmTMB_atravessar_rua
+```
